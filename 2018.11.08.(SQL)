@@ -1,0 +1,75 @@
+--<BCOM>
+--John Smith가 일하는 project를 모두 수행하는 사람들의 FNAME, LNAME을 검색하라
+SELECT FNAME, LNAME
+FROM EMPLOYEE E
+WHERE NOT EXISTS (
+  (
+   SELECT PNO
+   FROM EMPLOYEE, WORKS_ON
+   WHERE SSN=ESSN AND UPPER(FNAME)='JOHN' AND UPPER(LNAME)='SMITH'
+  )
+  MINUS
+  (
+    SELECT PNO
+    FROM WORKS_ON
+    WHERE E.SSN=ESSN
+  )
+);
+
+
+--<VIDEO>
+--제목이 ‘반지의 제왕’인 비디오 테이프의 장르를 검색하라
+SELECT GENRE
+FROM VIDEO
+WHERE TITLE='반지의제왕';
+
+--예약된 비디오 테이프의 ID를 검색하라
+SELECT VIDEO_ID
+FROM RESERVED;
+
+--예약되지 않은 비디오 테이프의 ID를 검색하라
+SELECT VIDEO_ID
+FROM VIDEO
+WHERE VIDEO_ID NOT IN (
+  SELECT VIDEO_ID
+  FROM RESERVED
+);
+
+--예약된 모든 비디오 테이프의 제목을 검색하라
+SELECT DISTINCT TITLE
+FROM VIDEO V, RESERVED R
+WHERE V.VIDEO_ID=R.VIDEO_ID;
+
+--비디오 테이프를 예약한 고객의 이름을 검색하라
+SELECT NAME
+FROM CUSTOMER
+WHERE CUSTOMER_ID IN (
+  SELECT CUSTOMER_ID
+  FROM RESERVED
+);
+
+--장르가 ‘액션’인 비디오 테이프를 예약한 고객의 주소를 검색하라
+SELECT ADDRESS
+FROM CUSTOMER
+WHERE CUSTOMER_ID IN (
+  SELECT CUSTOMER_ID
+  FROM RESERVED R, VIDEO V
+  WHERE R.VIDEO_ID=V.VIDEO_ID AND V.GENRE='액션'
+);
+
+--장르가 ‘다큐멘터리’인 비디오 테이프를 모두 예약한 고객의 이름을 검색하라
+SELECT NAME
+FROM CUSTOMER C
+WHERE NOT EXISTS (
+  (
+    SELECT VIDEO_ID
+    FROM VIDEO
+    WHERE GENRE='다큐멘터리'
+  )
+  MINUS
+  (
+    SELECT VIDEO_ID
+    FROM RESERVED
+    WHERE C.CUSTOMER_ID=CUSTOMER_ID
+  )
+);
