@@ -1,0 +1,45 @@
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
+
+class MyFrame extends JFrame {
+	Graphics g;
+	JPanel panel;
+
+	public MyFrame() {
+		panel = new JPanel();
+		panel.setBackground(Color.GRAY);
+		
+		panel.addMouseListener(new MyListener());
+		
+		setSize(1000, 800);
+		setLayout(new BorderLayout());
+		add(panel, BorderLayout.CENTER);
+		panel.setLayout(null);
+		setVisible(true);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	}
+	
+	class MyListener implements MouseListener {
+		public void mouseClicked(MouseEvent e) {
+			int n = getRand(100);
+			n++;
+			g = getGraphics();
+			g.setColor(new Color(getRand(256), getRand(256), getRand(256)));
+			g.fillOval(e.getX()-(n/2), e.getY()-(n/2), n, n);
+		}
+		public int getRand(int size) {
+			return (int)(Math.random()*size);
+		}
+		public void mouseEntered(MouseEvent e) {}
+		public void mouseExited(MouseEvent e) {}
+		public void mousePressed(MouseEvent e) {}
+		public void mouseReleased(MouseEvent e) {}
+	}
+}
+
+public class MyCircle {
+	public static void main(String[] args) {
+		MyFrame frame = new MyFrame();
+	}
+}
