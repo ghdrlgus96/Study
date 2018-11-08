@@ -1,0 +1,284 @@
+import javax.swing.*;
+import java.awt.event.*;
+import java.awt.*;
+import java.util.*;
+
+/*
+public class MyFrame extends JFrame{
+	private JButton button;
+	private JLabel label;
+	int counter=0;
+	class MyListener implements ActionListener {
+		public void actionPerformed(ActionEvent e) {
+			counter++;
+			label.setText("현재의 카운터값: " + counter);
+		}
+	}
+	public MyFrame() {
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setSize(400, 150);
+		setTitle("이벤트예제");
+		setLayout(new FlowLayout());
+		button = new JButton("증가");
+		label = new JLabel("현재의 카운터값: " + counter);
+		button.addActionListener(new MyListener());
+		add(label, "Center");
+		add(button, "East");
+		setVisible(true);
+	}
+	public static void main(String[] args) {
+		MyFrame t = new MyFrame();
+	}
+}
+*/
+
+//프레임 클래스가 이벤트를 처리
+/*
+public class MyFrame extends JFrame implements ActionListener {
+	private JButton button;
+	private JLabel label;
+	int counter=0;
+	public void actionPerformed(ActionEvent e) {
+		counter++;
+		label.setText("현재의 카운터값: " + counter);
+	}
+	public MyFrame() {
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setSize(400, 150);
+		setTitle("이벤트예제");
+		setLayout(new FlowLayout());
+		button = new JButton("증가");
+		label = new JLabel("현재의 카운터값: " + counter);
+		button.addActionListener(this);
+		add(label, "Center");
+		add(button, "East");
+		setVisible(true);
+	}
+	public static void main(String[] args) {
+		MyFrame t = new MyFrame();
+	}
+}
+*/
+
+//무명 클래스를 사용
+/*
+public class MyFrame extends JFrame {
+	private JButton button;
+	private JLabel label;
+	int counter=0;
+	
+	public MyFrame() {
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setSize(400, 150);
+		setTitle("이벤트예제");
+		setLayout(new FlowLayout());
+		button = new JButton("증가");
+		label = new JLabel("현재의 카운터값: " + counter);
+		button.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				counter++;
+				label.setText("현재의 카운터값: " + counter);
+			}
+		});
+		add(label, "Center");
+		add(button, "East");
+		setVisible(true);
+	}
+	public static void main(String[] args) {
+		MyFrame t = new MyFrame();
+	}
+}
+*/
+/*
+public class MyFrame extends JFrame {
+	private JButton button;
+	private JLabel label;
+	int counter=0;
+	
+	public MyFrame() {
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setSize(400, 150);
+		setTitle("이벤트예제");
+		setLayout(new FlowLayout());
+		button = new JButton("증가");
+		label = new JLabel("현재의 카운터값: " + counter);
+		button.addActionListener(e -> {
+			counter++;
+			label.setText("현재의 카운터값: " + counter);
+		});
+		add(label, "Center");
+		add(button, "East");
+		setVisible(true);
+	}
+	public static void main(String[] args) {
+		MyFrame t = new MyFrame();
+	}
+}
+*/
+
+//키보드 포커스 연숩
+/*
+public class MyFrame extends JFrame {
+	int n1, n2, n3;
+	JButton button1, button2, button3;
+	public MyFrame() {
+		setSize(300, 150);
+		JPanel panel = new JPanel();
+		button1 = new JButton("" + n1);
+		panel.add(button1);
+		button2 = new JButton("" + n2);
+		panel.add(button2);
+		button3 = new JButton("" + n3);
+		panel.add(button3);
+		panel.requestFocus();
+		panel.setFocusable(true);
+		panel.addKeyListener(new KeyListener() {
+			public void keyPressed(KeyEvent e) {
+				int keycode = e.getKeyCode();
+				if(keycode == KeyEvent.VK_ENTER) {
+					n1 = (int)(Math.random()*10);
+					n2 = (int)(Math.random()*10);
+					n3 = (int)(Math.random()*10);
+					button1.setText("" + n1);
+					button2.setText("" + n2);
+					button3.setText("" + n3);
+				}
+			}
+			public void keyReleased(KeyEvent e) {}
+			public void keyTyped(KeyEvent e) {}
+		});
+		panel.setBackground(Color.BLUE);
+		setLayout(new FlowLayout());
+		add(panel);
+		add(new JPanel());
+		setVisible(true);
+	}
+	public static void main(String[] args) {
+		MyFrame f = new MyFrame();
+	}
+}
+*/
+
+//키보드 리스너 연습
+/*
+public class MyFrame extends JFrame {
+	int img_x=150, img_y=150;
+	public MyFrame() {
+		setSize(600, 300);
+		JButton button = new JButton("");
+		ImageIcon icon = new ImageIcon("../Anmi.jpg");
+		button.setLocation(img_x, img_y);
+		JPanel panel = new JPanel();
+		panel.add(button);
+		panel.requestFocus();
+		panel.setFocusable(true);
+		panel.addKeyListener(new KeyListener() {
+			public void keyPressed(KeyEvent e) {
+				int keycode = e.getKeyCode();
+				switch(keycode) {
+				case KeyEvent.VK_UP: img_y -= 10; break;
+				case KeyEvent.VK_DOWN: img_y += 10; break;
+				case KeyEvent.VK_LEFT: img_x -= 10; break;
+				case KeyEvent.VK_RIGHT: img_x += 10; break;
+				}
+				button.setLocation(img_x, img_y);
+			}
+			public void keyReleased(KeyEvent e) {}
+			public void keyTyped(KeyEvent e) {}
+		});
+		add(panel);
+		setVisible(true);
+	}
+	public static void main(String[] args) {
+		MyFrame f = new MyFrame();
+	}
+}
+*/
+
+//마우스 리스너 연습
+/*
+public class MyFrame extends JFrame {
+	int img_x=150, img_y=150;
+	public MyFrame() {
+		setSize(600, 300);
+		JButton button = new JButton("");
+		ImageIcon icon = new ImageIcon("..\\Anmi.jpg");
+		button.setIcon(icon);
+		button.setLocation(img_x, img_y);
+		JPanel panel = new JPanel();
+		panel.add(button);
+		panel.requestFocus();
+		panel.setFocusable(true);
+		panel.addMouseListener(new MouseListener() {
+			public void mousePressed(MouseEvent e) {
+				img_x=e.getX(); img_y=e.getY();
+				button.setLocation(img_x, img_y);
+			}
+			public void mouseReleased(MouseEvent e) {}
+			public void mouseEntered(MouseEvent e) {}
+			public void mouseExited(MouseEvent e) {}
+			public void mouseClicked(MouseEvent e) {}
+		});
+		add(panel);
+		setVisible(true);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	}
+	public static void main(String[] args) {
+		MyFrame f = new MyFrame();
+	}
+}
+*/
+
+/*
+public class MyFrame extends JFrame {
+	int img_x=150, img_y=150;
+	public MyFrame() {
+		setSize(600, 300);
+		JButton button = new JButton("");
+		ImageIcon icon = new ImageIcon("..\\Anmi.jpg");
+		button.setIcon(icon);
+		button.setLocation(img_x, img_y);
+		JPanel panel = new JPanel();
+		panel.add(button);
+		panel.requestFocus();
+		panel.setFocusable(true);
+		panel.addMouseMotionListener(new MouseMotionListener() {
+			public void mouseMoved(MouseEvent e) {
+				img_x=e.getX(); img_y=e.getY();
+				button.setLocation(img_x, img_y);
+			}
+			public void mouseDragged(MouseEvent e) {}
+		});
+		add(panel);
+		setVisible(true);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	}
+	public static void main(String[] args) {
+		MyFrame f = new MyFrame();
+	}
+}
+*/
+
+//마우스로 원 그리기
+/*
+public class MyFrame extends JFrame implements MouseListener {
+	public MyFrame() {
+		addMouseListener(this);
+		setSize(300, 300);
+		setLayout(null);
+		setVisible(true);
+	}
+	public void mouseClicked(MouseEvent e) {
+		Graphics g = getGraphics();
+		g.setColor(Color.ORANGE);
+		g.fillOval(e.getX()-30, e.getY()-30, 60, 60);
+	}
+	public void mousePressed(MouseEvent e) {}
+	public void mouseReleased(MouseEvent e) {}
+	public void mouseEntered(MouseEvent e) {}
+	public void mouseExited(MouseEvent e) {}
+	public static void main(String[] args) {
+		MyFrame f = new MyFrame();
+	}
+}
+*/
