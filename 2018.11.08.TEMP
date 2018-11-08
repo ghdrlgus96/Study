@@ -58,7 +58,6 @@ import java.awt.event.*;
 import javax.swing.*;
 import java.util.*;
 
-
 class Calculator extends JFrame implements ActionListener{
 	private String[] labels = {
 			"BackSpace", "(", ")", "C",
@@ -97,11 +96,19 @@ class Calculator extends JFrame implements ActionListener{
 	public void actionPerformed(ActionEvent e) {
 		switch(e.getActionCommand()) {
 		case "=":
-			double result = calculation(field.getText());
-			field.setText(field.getText() + " = " + result);
+			try {
+				double result = calculation(field.getText());
+				field.setText(field.getText() + " = " + result);
+			}
+			catch(Exception ex) {
+				field.setText("비정상적인 계산입니다. 식을 다시 입력해주세요");
+			}
 			break;
 		case "BackSpace":
-			field.setText(field.getText().substring(0, field.getText().length()-1));
+			if(field.getText().length() != 0 && field.getText().substring(field.getText().length()-1).equals(" "))
+				field.setText(field.getText().substring(0, field.getText().length()-1));
+			if(field.getText().length() != 0)
+				field.setText(field.getText().substring(0, field.getText().length()-1));
 			break;
 		case "C":
 			field.setText("");
@@ -110,15 +117,17 @@ class Calculator extends JFrame implements ActionListener{
 			if(e.getActionCommand().equals("(") || e.getActionCommand().equals(")") || 
 					e.getActionCommand().equals("+") || e.getActionCommand().equals("-") ||
 					e.getActionCommand().equals("*") || e.getActionCommand().equals("/"))
-				field.setText(field.getText() + " " + e.getActionCommand() + " ");
+				if(field.getText().length() == 0 || field.getText().substring(field.getText().length()-1).equals(" "))
+					field.setText(field.getText() + e.getActionCommand() + " ");
+				else
+					field.setText(field.getText() + " " + e.getActionCommand() + " ");
 			else
 				field.setText(field.getText() + e.getActionCommand());
 			break;
 		}
 	}
-	public double calculation(String ori) {
+	public double calculation(String ori) throws Exception {
 		String[] temp = ori.split(" ");
-//		String[] postfix = new String[temp.length];
 		ArrayList<Object> postfix = new ArrayList<>();
 		Deque<String> stack = new ArrayDeque<>();
 		
@@ -134,7 +143,7 @@ class Calculator extends JFrame implements ActionListener{
 					stack.offerFirst(temp[i]);
 					break;
 				case ")":
-					while(stack.peekFirst().equals("("))
+					while(!stack.peekFirst().equals("("))
 						postfix.add(stack.pollFirst());
 					stack.pollFirst();
 					break;
@@ -146,6 +155,7 @@ class Calculator extends JFrame implements ActionListener{
 				}
 			}
 		}
+		
 		while(!stack.isEmpty())
 			postfix.add(stack.pollFirst());
 		
