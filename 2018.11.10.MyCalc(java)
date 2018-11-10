@@ -3,7 +3,7 @@ import java.awt.event.*;
 import javax.swing.*;
 import java.util.*;
 
-class Calculator extends JFrame implements ActionListener, KeyListener{
+class Calculator extends JFrame implements ActionListener, KeyListener {
 	private String[] labels = {
 			"BackSpace", "(", ")", "C",
 			"7", "8", "9", "+",
@@ -16,7 +16,7 @@ class Calculator extends JFrame implements ActionListener, KeyListener{
 	JTextField field = new JTextField(30);
 	
 	public Calculator() {
-		setSize(500, 300);
+		setSize(400, 300);
 		setLocation(600, 300);
 		field.setEditable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -34,9 +34,13 @@ class Calculator extends JFrame implements ActionListener, KeyListener{
 		panel1.add(panel3, BorderLayout.CENTER);
 		panel2.add(field, BorderLayout.NORTH);
 		
+		panel3.setBackground(Color.BLACK);
+		
 		buttons = new JButton[labels.length];
 		for(int i = 0; i < buttons.length; i++) {
 			buttons[i] = new JButton(labels[i]);
+			buttons[i].setBackground(Color.YELLOW);
+			buttons[i].setFont(new Font("Serif", Font.BOLD, 12));
 			buttons[i].addActionListener(this);
 			panel3.add(buttons[i]);
 		}
@@ -56,7 +60,7 @@ class Calculator extends JFrame implements ActionListener, KeyListener{
 				field.setText(field.getText() + " = " + result);
 			}
 			catch(Exception ex) {
-				field.setText("비정상적인 계산식입니다. 식을 다시 입력해주세요~");
+				field.setText("비정상적인 계산식입니다. 식을 다시 입력해주세요");
 			}
 			break;
 		case "BackSpace":
@@ -91,7 +95,14 @@ class Calculator extends JFrame implements ActionListener, KeyListener{
 			break;
 		}
 	}
+	
 	public void keyPressed(KeyEvent e) {
+		String[] temp = field.getText().split(" ");
+		
+		if(temp.length >= 7) {
+			field.setText(field.getText().substring(0, field.getText().length()-2));
+		}
+		
 		if(e.getKeyCode() == KeyEvent.VK_ENTER)
 			if(field.getText().length() == 0)
 				return;
@@ -105,6 +116,7 @@ class Calculator extends JFrame implements ActionListener, KeyListener{
 				}		
 			}
 	}
+	
 	public void keyReleased(KeyEvent e) {}
 	public void keyTyped(KeyEvent e) {}
 }
