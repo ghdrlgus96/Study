@@ -3,7 +3,7 @@ import java.awt.event.*;
 import javax.swing.*;
 import java.util.*;
 
-class Calculator extends JFrame implements ActionListener{
+class Calculator extends JFrame implements ActionListener, KeyListener{
 	private String[] labels = {
 			"BackSpace", "(", ")", "C",
 			"7", "8", "9", "+",
@@ -16,7 +16,7 @@ class Calculator extends JFrame implements ActionListener{
 	JTextField field = new JTextField(30);
 	
 	public Calculator() {
-		setSize(600, 400);
+		setSize(500, 300);
 		setLocation(600, 300);
 		field.setEditable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -40,6 +40,11 @@ class Calculator extends JFrame implements ActionListener{
 			buttons[i].addActionListener(this);
 			panel3.add(buttons[i]);
 		}
+		
+		field.requestFocus();
+		field.setFocusable(true);
+		field.addKeyListener(this);
+		
 		setVisible(true);
 	}
 	
@@ -65,9 +70,13 @@ class Calculator extends JFrame implements ActionListener{
 			break;
 		case "일반모드":
 			field.setEditable(false);
+			for(int i = 0; i < buttons.length-4; i++)
+				buttons[i].setEnabled(true);
 			break;
 		case "수식모드":
 			field.setEditable(true);
+			for(int i = 0; i < buttons.length-4; i++)
+				buttons[i].setEnabled(false);
 			break;
 		default:
 			if(e.getActionCommand().equals("(") || e.getActionCommand().equals(")") || 
@@ -82,6 +91,22 @@ class Calculator extends JFrame implements ActionListener{
 			break;
 		}
 	}
+	public void keyPressed(KeyEvent e) {
+		if(e.getKeyCode() == KeyEvent.VK_ENTER)
+			if(field.getText().length() == 0)
+				return;
+			else if(field.getText().substring(field.getText().length()-1).equals("=")) {
+				try {
+					double result = Calculation.calculation(field.getText().substring(0, field.getText().length()-2));
+					field.setText(field.getText() + " " + result);
+				}
+				catch(Exception ex) {
+					field.setText("비정상적인 계산식입니다. 식을 다시 입력해주세요~");
+				}		
+			}
+	}
+	public void keyReleased(KeyEvent e) {}
+	public void keyTyped(KeyEvent e) {}
 }
 
 class Calculation {
