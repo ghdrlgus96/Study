@@ -3,7 +3,10 @@ import java.awt.event.*;
 import javax.swing.*;
 import java.util.*;
 
+//Calculator class는 스윙을 사용하기 위하여 JFrame을 상속하고
+//액션을 처리할 ActionListener와 KeyListener를 구현한다
 class Calculator extends JFrame implements ActionListener, KeyListener {
+	//버튼에 저장할 문자열을 배열로 저장한다
 	private String[] labels = {
 			"BackSpace", "(", ")", "C",
 			"7", "8", "9", "+",
@@ -11,160 +14,231 @@ class Calculator extends JFrame implements ActionListener, KeyListener {
 			"1", "2", "3", "*",
 			"=", "0", ".", "/",
 			"일반모드", "수식모드", "", ""};
+	//frame에 붙힐 panel1와 panel1에 붙힐 panel2, panel3를 선언
 	JPanel panel1, panel2, panel3;
+	//버튼 배열 선언
 	JButton[] buttons;
+	//수식이 입력될 field 선언
 	JTextField field = new JTextField(30);
 	
+	//인자없는 생성자
 	public Calculator() {
-		setSize(400, 300);
-		setLocation(600, 300);
-		field.setEditable(false);
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setSize(400, 300);	//윈도우의 사이즈는 400 X 300 이다
+		setLocation(600, 300);	//윈도우의 위치는 600, 300 위치이다
+		field.setEditable(false);	//처음 초기값인 일반 연산 모드에서는 텍스트 필드의 수정을 막는다
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);	//윈도우 종료시 프로그램을 자동으로 종료한다
 		
-		panel1 = new JPanel();
+		panel1 = new JPanel();	//panel을 생성
 		panel2 = new JPanel();
 		panel3 = new JPanel();
 		
-		panel1.setLayout(new BorderLayout());
-		panel2.setLayout(new BorderLayout());
-		panel3.setLayout(new GridLayout(0, 4, 3, 3));
+		panel1.setLayout(new BorderLayout());	//panel1의 배치관리자는 BorderLayout
+		panel2.setLayout(new BorderLayout());	//panel2의 배치관리자는 BorderLayout
+		panel3.setLayout(new GridLayout(0, 4, 3, 3));	//panel3의 배치관리자는 GridLayout
 		
-		add(panel1);
-		panel1.add(panel2, BorderLayout.NORTH);
-		panel1.add(panel3, BorderLayout.CENTER);
-		panel2.add(field, BorderLayout.NORTH);
+		add(panel1);	//panel1은 frame에 붙힌다.
+		panel1.add(panel2, BorderLayout.NORTH);	//panel2는 panel1의 NORTH에 붙힌다.
+		panel1.add(panel3, BorderLayout.CENTER);//panel3는 panel1의 CENTER에 붙힌다.
+		panel2.add(field, BorderLayout.NORTH);	//field는 panel에 붙힌다.
 		
-		panel3.setBackground(Color.BLACK);
+		panel3.setBackground(Color.BLACK);	//panel3의 BackGround는 BLACK으로 설정
 		
-		buttons = new JButton[labels.length];
+		buttons = new JButton[labels.length];	//button의 참조배열을 저장할 buttons배열을 생성
 		for(int i = 0; i < buttons.length; i++) {
-			buttons[i] = new JButton(labels[i]);
-			buttons[i].setBackground(Color.YELLOW);
-			buttons[i].setFont(new Font("Serif", Font.BOLD, 12));
-			buttons[i].addActionListener(this);
-			panel3.add(buttons[i]);
+			buttons[i] = new JButton(labels[i]);	//label의 문자열을 저장하면서 새로운 버튼을 생성
+			buttons[i].setBackground(Color.YELLOW);	//button의 색은 YELLOW
+			buttons[i].setFont(new Font("Serif", Font.BOLD, 12));	//button의 폰트를 설정한다.
+			buttons[i].addActionListener(this);	//button에 ActionListener를 준다
+			//이 클래스에서 ActionListener를 구현하고 있으므로 this로 설정하였다.
+			panel3.add(buttons[i]);	//panel3에 button을 붙힌다.
 		}
 		
 		field.requestFocus();
+		//KeyEvent가 발생하기 위해서는 컴포넌트가 키보드 포커스를 가져야 한다
+		//키보드 포커스를 얻기 위해서는 requestFocus()와 setFocusable(true) 선언
 		field.setFocusable(true);
 		field.addKeyListener(this);
-		
-		setVisible(true);
+		//이 클래스가 KeyListener를 구현하므로 this로 설정
+		setVisible(true);	//frame을 보이도록 설정한다.
 	}
 	
+	//ActionListner의 actionPerformed 메소드를 오버라이딩 하였다.
 	public void actionPerformed(ActionEvent e) {
 		switch(e.getActionCommand()) {
-		case "=":
-			try {
+		//클릭된 button에 적혀있는 문자열을 읽는다.
+		case "=":	//만약 = 버튼을 눌렀다면
+			try {	//예외처리로 오류가 발생했는지 catch 한다
+				//Calculation class의 사칙연산을 계산하는 메소드인 calculation 메소드를 호출
+				//이 때 calculation 메소드는 static으로 선언 되어 객체를 생성하지 않고도 호출이 가능
 				double result = Calculation.calculation(field.getText());
-				field.setText(field.getText() + " = " + result);
+				field.setText(field.getText() + " = " + result);	//field에 식과 결과를 출력
 			}
-			catch(Exception ex) {
+			catch(Exception ex) {	//오류가 발생했으면 실행된다.
 				field.setText("비정상적인 계산식입니다. 식을 다시 입력해주세요");
 			}
 			break;
-		case "BackSpace":
+		case "BackSpace":	//만약 BackSpace가 눌렸다면
+			//만약 현재 field가 텅 비어있지 않고 마지막 글자가 공백이라면 한글자를 지운다
 			if(field.getText().length() != 0 && field.getText().substring(field.getText().length()-1).equals(" "))
 				field.setText(field.getText().substring(0, field.getText().length()-1));
+			//만약 현재 field가 텅 비어 있지 않다면 한글자를 지운다
 			if(field.getText().length() != 0)
 				field.setText(field.getText().substring(0, field.getText().length()-1));
 			break;
-		case "C":
-			field.setText("");
+		case "C":	//만약 C를 눌렀다면
+			field.setText("");	//field를 공백으로 초기화한다.
 			break;
-		case "일반모드":
-			field.setEditable(false);
+		case "일반모드":	//만약 일반모드를 선택 하였다면
+			field.setEditable(false);	//field를 수정하지 못하게 설정
+			//모든 버튼이 활성화되도록 설정
 			for(int i = 0; i < buttons.length-4; i++)
 				buttons[i].setEnabled(true);
 			break;
-		case "수식모드":
-			field.setEditable(true);
+		case "수식모드":	//만약 수식모드를 선택 하였다면
+			field.setEditable(true);	//field를 수정 가능하도록 설정
+			//마지막 줄을 제외한 모든 버튼을 클릭하지 못하도록 설정
 			for(int i = 0; i < buttons.length-4; i++)
 				buttons[i].setEnabled(false);
 			break;
-		default:
+		default:	//그외의 버튼인 연산자나 피연산자를 선택하였을 경우
+			//만약 클릭한 버튼이 연산자라면
 			if(e.getActionCommand().equals("(") || e.getActionCommand().equals(")") || 
 					e.getActionCommand().equals("+") || e.getActionCommand().equals("-") ||
-					e.getActionCommand().equals("*") || e.getActionCommand().equals("/"))
+					e.getActionCommand().equals("*") || e.getActionCommand().equals("/")) {
+				//field가 공백이거나 마지막 글자가 이미 공백이라면 앞에 공백은 삽입하지 않고 연산자를 삽입하고 뒤에 공백을 삽입한다.
 				if(field.getText().length() == 0 || field.getText().substring(field.getText().length()-1).equals(" "))
 					field.setText(field.getText() + e.getActionCommand() + " ");
-				else
+				else	//그렇지 않다면 앞에 공백을 삽입하고 연산자를 삽입하고 뒤에 공백을 삽입한다.
 					field.setText(field.getText() + " " + e.getActionCommand() + " ");
-			else
+			}
+			else	//만약 클릭한 버튼이 피연산자라면 공백없이 삽입한다. (피연산자는 한자리수 이상이 될 수 있다)
 				field.setText(field.getText() + e.getActionCommand());
 			break;
 		}
 	}
 	
+	//KeyListener의 KeyPressed를 구현 KeyPressed는 키보드를 눌렀을 경우 호출
 	public void keyPressed(KeyEvent e) {
 		String[] temp = field.getText().split(" ");
-		
+		//피연산자가 3개 이상 입력되었는지 검사
 		if(temp.length >= 7) {
+			//만약 그렇다면 피연산자 3개 이후 입력된 피연산자들을 지운다
 			field.setText(field.getText().substring(0, field.getText().length()-2));
 		}
 		
-		if(e.getKeyCode() == KeyEvent.VK_ENTER)
+		//만약 입력된 keyCode가 엔터라면
+		if(e.getKeyCode() == KeyEvent.VK_ENTER) {
+			//field가 공백이라면 메소드를 종료한다
 			if(field.getText().length() == 0)
 				return;
+			//엔터전에 입력한 것이 = 이라면 계산을 실행한다.
 			else if(field.getText().substring(field.getText().length()-1).equals("=")) {
 				try {
 					double result = Calculation.calculation(field.getText().substring(0, field.getText().length()-2));
 					field.setText(field.getText() + " " + result);
 				}
 				catch(Exception ex) {
-					field.setText("비정상적인 계산식입니다. 식을 다시 입력해주세요~");
+					field.setText("비정상적인 계산식입니다. 식을 다시 입력해주세요");
 				}		
 			}
+		}
 	}
 	
-	public void keyReleased(KeyEvent e) {}
-	public void keyTyped(KeyEvent e) {}
+	public void keyReleased(KeyEvent e) {}	//KeyListener에 있는 추상 메소드이다
+	public void keyTyped(KeyEvent e) {}		//사용하지 않더라도 오버라이딩 해야된다.
 }
 
+//Calculation class에는 사칙연산을 계산하기 위한 메소드들을 작성하였다.
+//모든 메소드들이 static이므로 객체를 생성하지 않아도 호출이 가능하다.
+
 class Calculation {
-	public static double calculation(String ori) throws Exception {		//사칙연산 계산 메소드
+	//연산자의 가중치를 반환하는 메소드이다 이 class 내부에서만 사용하니 private 선언하였다
+	private static int priority(String a) {
+		switch (a) {
+		case "*":
+		case "/":
+			return 5;
+		case "+":
+		case "-":
+			return 3;
+		case "(":
+			return 1;
+		}
+		return 0;
+	}
+	//두 연산자의 우선순위를 반환하는 메소드이다 이 class 내부에서만 사용하니 private 선언하였다.
+	private static int compare(String a, String b) {
+		int A = priority(a);
+		int B = priority(b);
+
+		if (A > B)
+			return 1;
+		else if (A == B)
+			return 0;
+		else
+			return -1;
+	}
+	//사칙연산을 하는 메소드이다. 예외 발생시 메소드를 호출한 곳으로 예외를 넘긴다
+	public static double calculation(String ori) throws Exception {
+		//매개변수로 받는 사칙연산을 공백을 기준으로 나눈다
 		String[] temp = ori.split(" ");
+		//동적객체배열을 선언. 이때 Double로 바꿀 피연산자와 String인 연산자를 동시에 저장 가능하도록 Object를 받을 수 있게 생성
 		ArrayList<Object> postfix = new ArrayList<>();
+		//스택을 사용하기 위해 덱을 생성, 연산자만 저장하니 String을 저장 가능하도록 생성
 		Deque<String> stack = new ArrayDeque<>();
 		
+		//중위식인 사칙연산을 후위식으로 바꾸는 반복문
 		for(int i = 0; i < temp.length; i++) {
+			//만약 temp[i]가 피연산자라면
 			if(!(temp[i].equals("(") || temp[i].equals(")") || 
 					temp[i].equals("+") || temp[i].equals("-") ||
 					temp[i].equals("*") || temp[i].equals("/"))) {
+				//래퍼 클래스로 Double형으로 감싼 다음 postfix 배열에 저장
 				postfix.add(Double.parseDouble(temp[i]));
 			}
+			//만약 temp[i]가 연산자라면
 			else {
+				//switch 문으로 어떤 연산자인지 구분한다
 				switch(temp[i]) {
-				case "(":
-					stack.offerFirst(temp[i]);
+				case "(":	//만약 ( 라면
+					stack.offerFirst(temp[i]);	//스택에 바로 넣는다.
 					break;
-				case ")":
+				case ")":	//만약 ) 라면
+					//while 문으로 ( 가 발견 될때까지 스택에서 꺼내어 postfix 배열에 저장
 					while(!stack.peekFirst().equals("("))
 						postfix.add(stack.pollFirst());
-					stack.pollFirst();
+					stack.pollFirst();	//(는 후위식에 필요없으므로 버린다
 					break;
-				case "+": case "-": case "*": case "/":
+				case "+": case "-": case "*": case "/":	//만약 + - * / 라면
+					//스택이 비어있지 않고 우선순위가 더 낮은 연산자를 발견 할 때 까지 스택에서 꺼내어 postfix에 저장
 					while(!stack.isEmpty() && compare(stack.peekFirst(), temp[i]) >= 0)
 						postfix.add(stack.pollFirst());
+					//현재 연산자는 스택에 저장한다
 					stack.offerFirst(temp[i]);
 					break;
 				}
 			}
 		}
 		
-		while(!stack.isEmpty())
+		while(!stack.isEmpty())	//스택에 연산자가 남아있으면 전부 postfix에 옮긴다
 			postfix.add(stack.pollFirst());
 		
+		//후위식을 계산한 값을 저장할 스택 선언, 이때 실수도 계산하기 위하여 Double을 저장할 수 있도록 하였다.
 		Deque<Double> stack2 = new ArrayDeque<>();
 		
+		//후위식을 계산하는 반복문
 		for(int i = 0; i < postfix.size(); i++) {
+			//만약 postfix에서 꺼낸 값이 래퍼 클래스라면 피연산자인 것이다. 이때는 스택에 저장한다.
 			if(postfix.get(i) instanceof Number)
 				stack2.offerFirst((double)postfix.get(i));
+			//만약 postfix에서 꺼낸값이 래퍼 클래스가 아니라면 연산자인 것이다
 			else {
+				//스택에서 두개의 피연산자를 꺼낸다
 				double num1 = stack2.pollFirst();
 				double num2 = stack2.pollFirst();
 				String op = (String)postfix.get(i);
 				
+				//연산자가 무엇인가에 따라서 다른 연산을 하고 그 결과를 다시 스택에 집어넣는다.
 				switch(op) {
 				case "+":
 					stack2.offerFirst(num2 + num1);
@@ -181,37 +255,14 @@ class Calculation {
 				}
 			}
 		}
+		//스택에 남아있는 값이 최종 사칙연산의 결과 이므로 반환한다.
 		return stack2.pollFirst();
-	}
-	
-	private static int priority(String a) {		//가중치 반환 메소드
-		switch (a) {
-		case "*":
-		case "/":
-			return 5;
-		case "+":
-		case "-":
-			return 3;
-		case "(":
-			return 1;
-		}
-		return 0;
-	}
-	private static int compare(String a, String b) {	//우선순위 판단 메소드
-		int A = priority(a);
-		int B = priority(b);
-
-		if (A > B)
-			return 1;
-		else if (A == B)
-			return 0;
-		else
-			return -1;
 	}
 }
 
 public class MyCalc {
 	public static void main(String[] args) {
+		//Calculator 객체를 생성한다. 이것이 main 함수에서 하는 일의 정부이다.
 		Calculator calc = new Calculator();
 	}
 }
