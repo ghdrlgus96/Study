@@ -1,0 +1,85 @@
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
+import java.util.*;
+
+class MyFrame extends JFrame {
+	JMenuBar mb;
+	JMenu[] screenMenu;
+	JMenuItem[][] item;
+//	JPanel[][] panel;
+	
+	public MyFrame() {
+		setTitle("menu");
+		createMenu();
+		setSize(1000, 800);
+		setLocation(300, 100);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
+		setVisible(true);
+	}
+	
+	private void createMenu() {
+		mb = new JMenuBar();
+		screenMenu = new JMenu[3];
+		screenMenu[0] = new JMenu("Text");
+		screenMenu[1] = new JMenu("Image");
+		screenMenu[2] = new JMenu("Audio");
+		mb.add(screenMenu[0]);
+		mb.add(screenMenu[1]);
+		mb.add(screenMenu[2]);
+		
+		item = new JMenuItem[3][2];
+		screenMenu[0].add(item[0][0] = new JMenuItem("기능00"));
+		item[0][0].addActionListener(new MenuActionListener());
+		screenMenu[0].addSeparator();
+		screenMenu[0].add(item[0][1] = new JMenuItem("기능01"));
+		item[0][1].addActionListener(new MenuActionListener());
+		screenMenu[1].add(item[1][0] = new JMenuItem("기능10"));
+		item[1][0].addActionListener(new MenuActionListener());
+		screenMenu[1].addSeparator();
+		screenMenu[1].add(item[1][1] = new JMenuItem("기능11"));
+		item[1][1].addActionListener(new MenuActionListener());
+		screenMenu[2].add(item[2][0] = new JMenuItem("기능20"));
+		item[2][0].addActionListener(new MenuActionListener());
+		screenMenu[2].addSeparator();
+		screenMenu[2].add(item[2][1] = new JMenuItem("기능21"));
+		item[2][1].addActionListener(new MenuActionListener());
+		
+		setJMenuBar(mb);
+	}
+	
+	class MenuActionListener implements ActionListener {
+		public void actionPerformed(ActionEvent e) {
+			String str = e.getActionCommand();
+			switch(str) {
+			case "기능00":
+				System.out.println(str);
+				break;
+			case "기능01":
+				System.out.println(str);
+				break;
+			case "기능10":
+				System.out.println(str);
+				break;
+			case "기능11":
+				System.out.println(str);
+				break;
+			case "기능20":
+				System.out.println(str);
+				break;
+			case "기능21":
+				System.out.println(str);
+				break;
+			default:
+				System.out.println("실행되면 안됨");
+			}
+		}
+	}
+}
+
+public class Hw4Frame {
+	public static void main(String[] args) {
+		new MyFrame();
+	}
+}
