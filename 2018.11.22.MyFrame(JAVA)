@@ -1,9 +1,14 @@
 import java.awt.*;
 import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.filechooser.FileNameExtensionFilter;
 
-import java.util.*;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
+import javax.swing.*;
+import javax.swing.filechooser.*;
+import java.io.*;
 
 class MyDialog extends JDialog {
 	private JTextField field = new JTextField(10);
@@ -42,6 +47,8 @@ class MyFrame extends JFrame implements ActionListener {
 	String text;
 	JLabel label;
 	JFileChooser chooser;
+	JButton[] musicButton;
+	Clip clip;
 	Container c;
 	
 	public MyFrame() {
@@ -65,17 +72,17 @@ class MyFrame extends JFrame implements ActionListener {
 		mb.add(screenMenu[2]);
 		
 		item = new JMenuItem[3][2];
-		screenMenu[0].add(item[0][0] = new JMenuItem("기능00"));
+		screenMenu[0].add(item[0][0] = new JMenuItem("ColorChange"));
 		item[0][0].addActionListener(this);
 		screenMenu[0].addSeparator();
 		screenMenu[0].add(item[0][1] = new JMenuItem("기능01"));
 		item[0][1].addActionListener(this);
-		screenMenu[1].add(item[1][0] = new JMenuItem("기능10"));
+		screenMenu[1].add(item[1][0] = new JMenuItem("OpenImage"));
 		item[1][0].addActionListener(this);
 		screenMenu[1].addSeparator();
 		screenMenu[1].add(item[1][1] = new JMenuItem("기능11"));
 		item[1][1].addActionListener(this);
-		screenMenu[2].add(item[2][0] = new JMenuItem("기능20"));
+		screenMenu[2].add(item[2][0] = new JMenuItem("OpenAudio"));
 		item[2][0].addActionListener(this);
 		screenMenu[2].addSeparator();
 		screenMenu[2].add(item[2][1] = new JMenuItem("기능21"));
@@ -88,9 +95,11 @@ class MyFrame extends JFrame implements ActionListener {
 		String str = e.getActionCommand();
 		c= getContentPane();
 		getContentPane().removeAll();
+		revalidate();
+		repaint();
 		
 		switch(str) {
-		case "기능00":
+		case "ColorChange":
 			do {
 				dialog = new MyDialog(this, "출력을 하고 싶은 텍스트 입력   ", "OK");
 				text = dialog.getField();
@@ -109,28 +118,11 @@ class MyFrame extends JFrame implements ActionListener {
 			} while(text == null);
 			
 			break;
-		case "기능10":
-			chooser = new JFileChooser();
-			FileNameExtensionFilter filter = 
-					new FileNameExtensionFilter("JPG & GIF & PNG Images", 
-												"jpg", "gif", "png");
-			chooser.setFileFilter(filter);
-
-			int ret = chooser.showOpenDialog(null);
-			if(ret != JFileChooser.APPROVE_OPTION) {
-				JOptionPane.showMessageDialog(null, 
-						"파일을 선택하지 않았습니다", "경고", 
-						JOptionPane.WARNING_MESSAGE);
-				return;
-			}
-			
-			String filePath = chooser.getSelectedFile().getPath();
-			System.out.println(filePath);
+		case "OpenImage":
 			label = new JLabel();
-			label.setIcon(new ImageIcon(filePath));
+			label.setIcon(new ImageIcon(fileChooser("jpg", "png")));
 			c.add(label);
 			pack(); // 이미지의 크기에 맞추어 프레임 크기 조절
-			
 			break;
 		case "기능11":
 			do {
@@ -139,12 +131,14 @@ class MyFrame extends JFrame implements ActionListener {
 			} while(text == null);
 			
 			break;
-		case "기능20":
-			do {
-				dialog = new MyDialog(this, "텍스트를 입력하시오 기능20   ", "OK");
-				text = dialog.getField();
-			} while(text == null);
-			
+		case "OpenAudio":
+			loadAudio(fileChooser("wav", "wav"));
+			musicButton = new JButton[3];
+			musicButton[0] = new JButton("play"); musicButton[0].addActionListener(new MyActionListener());
+			musicButton[1] = new JButton("stop"); musicButton[1].addActionListener(new MyActionListener());
+			c.setLayout(new FlowLayout());
+			c.add(musicButton[0]); c.add(musicButton[1]);
+			setSize(400, 200);
 			break;
 		case "기능21":
 			do {
@@ -162,6 +156,48 @@ class MyFrame extends JFrame implements ActionListener {
 	Color colorChooser() {
 		Color color = JColorChooser.showDialog(null, "Color", Color.BLACK);
 		return color;
+	}
+	String fileChooser(String s1, String s2) {
+		chooser = new JFileChooser();
+		FileNameExtensionFilter filter = 
+				new FileNameExtensionFilter(s1 + " & " + s2 + " Images", s1, s2);
+		chooser.setFileFilter(filter);
+
+		int ret = chooser.showOpenDialog(null);
+		if(ret != JFileChooser.APPROVE_OPTION) {
+			JOptionPane.showMessageDialog(null, "파일을 선택하지 않았습니다", "경고", JOptionPane.WARNING_MESSAGE);
+			return null;
+		}
+		
+		return chooser.getSelectedFile().getPath();
+	}
+	void loadAudio(String pathName) {
+		try {
+			clip = AudioSystem.getClip(); // 비어있는 오디오 클립 만들기
+			File audioFile = new File(pathName); // 오디오 파일의 경로명
+			AudioInputStream audioStream = AudioSystem.getAudioInputStream(audioFile);
+			clip.open(audioStream); // 재생할 오디오 스트림 열기
+		}
+		catch (LineUnavailableException e) { e.printStackTrace(); }
+		catch (UnsupportedAudioFileException e) { e.printStackTrace(); }
+		catch (IOException e) { e.printStackTrace(); }
+	}
+	class MyActionListener implements ActionListener {
+		public void actionPerformed(ActionEvent e) {
+			switch(e.getActionCommand()) {
+				case "play":
+					System.out.println("zz");
+					clip.start(); // 오디오 재생 시작
+					break;
+				case "stop":
+					clip.stop(); // 오디오 재생 중단
+					break;
+				case "play again":
+					clip.setFramePosition(0);
+					clip.start();
+					break;
+			}
+		}
 	}
 }
 
