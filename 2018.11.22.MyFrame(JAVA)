@@ -1,13 +1,48 @@
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
+
 import java.util.*;
 
-class MyFrame extends JFrame {
+class MyDialog extends JDialog {
+	private JTextField field = new JTextField(10);
+	private JButton button;
+	private JLabel label;
+	public MyDialog(JFrame frame, String lab, String but) {
+		super(frame, "Dialog", true);
+		label = new JLabel(lab);
+		button = new JButton(but);
+		
+		setLayout(new FlowLayout(10));
+		add(label);
+		add(field);
+		add(button);
+		setSize(400, 100);
+		setLocation(600, 150);
+		button.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				setVisible(false);
+			}
+		});
+		setVisible(true);
+	}
+	public String getField() {
+		if(field.getText().length() == 0)
+			return null;
+		return field.getText();
+	}
+}
+
+class MyFrame extends JFrame implements ActionListener {
 	JMenuBar mb;
 	JMenu[] screenMenu;
 	JMenuItem[][] item;
-//	JPanel[][] panel;
+	MyDialog dialog;
+	String text;
+	JLabel label;
+	JFileChooser chooser;
+	Container c;
 	
 	public MyFrame() {
 		setTitle("menu");
@@ -31,50 +66,102 @@ class MyFrame extends JFrame {
 		
 		item = new JMenuItem[3][2];
 		screenMenu[0].add(item[0][0] = new JMenuItem("기능00"));
-		item[0][0].addActionListener(new MenuActionListener());
+		item[0][0].addActionListener(this);
 		screenMenu[0].addSeparator();
 		screenMenu[0].add(item[0][1] = new JMenuItem("기능01"));
-		item[0][1].addActionListener(new MenuActionListener());
+		item[0][1].addActionListener(this);
 		screenMenu[1].add(item[1][0] = new JMenuItem("기능10"));
-		item[1][0].addActionListener(new MenuActionListener());
+		item[1][0].addActionListener(this);
 		screenMenu[1].addSeparator();
 		screenMenu[1].add(item[1][1] = new JMenuItem("기능11"));
-		item[1][1].addActionListener(new MenuActionListener());
+		item[1][1].addActionListener(this);
 		screenMenu[2].add(item[2][0] = new JMenuItem("기능20"));
-		item[2][0].addActionListener(new MenuActionListener());
+		item[2][0].addActionListener(this);
 		screenMenu[2].addSeparator();
 		screenMenu[2].add(item[2][1] = new JMenuItem("기능21"));
-		item[2][1].addActionListener(new MenuActionListener());
+		item[2][1].addActionListener(this);
 		
 		setJMenuBar(mb);
 	}
 	
-	class MenuActionListener implements ActionListener {
-		public void actionPerformed(ActionEvent e) {
-			String str = e.getActionCommand();
-			switch(str) {
-			case "기능00":
-				System.out.println(str);
-				break;
-			case "기능01":
-				System.out.println(str);
-				break;
-			case "기능10":
-				System.out.println(str);
-				break;
-			case "기능11":
-				System.out.println(str);
-				break;
-			case "기능20":
-				System.out.println(str);
-				break;
-			case "기능21":
-				System.out.println(str);
-				break;
-			default:
-				System.out.println("실행되면 안됨");
+	public void actionPerformed(ActionEvent e) {
+		String str = e.getActionCommand();
+		c= getContentPane();
+		getContentPane().removeAll();
+		
+		switch(str) {
+		case "기능00":
+			do {
+				dialog = new MyDialog(this, "출력을 하고 싶은 텍스트 입력   ", "OK");
+				text = dialog.getField();
+			} while(text == null);
+			label = new JLabel(text);
+			label.setForeground(colorChooser());
+			label.setHorizontalAlignment(SwingConstants.CENTER);
+			label.setFont(new Font("Ravie", Font.ITALIC, 30));
+			c.add(label, BorderLayout.CENTER);
+			setSize(400, 200);
+			break;
+		case "기능01":
+			do {
+				dialog = new MyDialog(this, "텍스트를 입력하시오 기능01   ", "OK");
+				text = dialog.getField();
+			} while(text == null);
+			
+			break;
+		case "기능10":
+			chooser = new JFileChooser();
+			FileNameExtensionFilter filter = 
+					new FileNameExtensionFilter("JPG & GIF & PNG Images", 
+												"jpg", "gif", "png");
+			chooser.setFileFilter(filter);
+
+			int ret = chooser.showOpenDialog(null);
+			if(ret != JFileChooser.APPROVE_OPTION) {
+				JOptionPane.showMessageDialog(null, 
+						"파일을 선택하지 않았습니다", "경고", 
+						JOptionPane.WARNING_MESSAGE);
+				return;
 			}
+			
+			String filePath = chooser.getSelectedFile().getPath();
+			System.out.println(filePath);
+			label = new JLabel();
+			label.setIcon(new ImageIcon(filePath));
+			c.add(label);
+			pack(); // 이미지의 크기에 맞추어 프레임 크기 조절
+			
+			break;
+		case "기능11":
+			do {
+				dialog = new MyDialog(this, "텍스트를 입력하시오 기능11   ", "OK");
+				text = dialog.getField();
+			} while(text == null);
+			
+			break;
+		case "기능20":
+			do {
+				dialog = new MyDialog(this, "텍스트를 입력하시오 기능20   ", "OK");
+				text = dialog.getField();
+			} while(text == null);
+			
+			break;
+		case "기능21":
+			do {
+				dialog = new MyDialog(this, "텍스트를 입력하시오 기능21   ", "OK");
+				text = dialog.getField();
+			} while(text == null);
+			
+			break;
+		default:
+			System.out.println("실행되면 안됨");
 		}
+		
+//		setSize(1000, 801); setSize(1000, 800);
+	}
+	Color colorChooser() {
+		Color color = JColorChooser.showDialog(null, "Color", Color.BLACK);
+		return color;
 	}
 }
 
