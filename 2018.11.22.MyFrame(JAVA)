@@ -48,6 +48,7 @@ class MyFrame extends JFrame implements ActionListener {
 	JPanel panel;
 	JLabel[] labels = new JLabel[5];
 	int check = 0;
+	Timer timer;
 
 	public MyFrame() {
 		setTitle("menu");
@@ -89,7 +90,9 @@ class MyFrame extends JFrame implements ActionListener {
 		mb.setBackground(Color.BLACK);
 		for(int i = 0; i < screenMenu.length; i++) {
 			screenMenu[i].setForeground(Color.YELLOW);
+			screenMenu[i].setFont(new Font("Serif", Font.BOLD, 15));
 			for(int j = 0; j < item[i].length; j++) {
+				item[i][j].setFont(new Font("Serif", Font.BOLD, 15));
 				item[i][j].setBackground(Color.BLACK);
 				item[i][j].setForeground(Color.YELLOW);
 			}
@@ -220,6 +223,8 @@ class MyFrame extends JFrame implements ActionListener {
 
 			loadAudio(path);
 			musicButton = new JButton[3];
+			JPanel panel1 = new JPanel(), panel2 = new JPanel();
+			
 
 			musicButton[0] = new JButton("play");
 			musicButton[0].addActionListener(new MyActionListener());
@@ -227,14 +232,32 @@ class MyFrame extends JFrame implements ActionListener {
 			musicButton[1].addActionListener(new MyActionListener());
 			musicButton[2] = new JButton("play again");
 			musicButton[2].addActionListener(new MyActionListener());
-			panel.setLayout(new FlowLayout());
+			panel.setLayout(new GridLayout(0, 1));
 
-			panel.add(musicButton[0]);
-			panel.add(musicButton[1]);
-			panel.add(musicButton[2]);
-			panel.setSize(400, 200);
-			setSize(400, 200);
+			panel1.add(musicButton[0]);
+			panel1.add(musicButton[1]);
+			panel1.add(musicButton[2]);
+			label = new JLabel("AUDIO STOP~");
+			label.setFont(new Font("Ravie", Font.ITALIC, 50));
+			
+			panel2.add(label);
+			panel.setSize(500, 300);
+			
+			panel.add(panel1);
+			panel.add(panel2);
+			
+			setSize(500, 300);
 			c.add(panel);
+			timer = new Timer(1000, new ActionListener() {
+				public void actionPerformed(ActionEvent arg0) {
+					Color myColor = new Color((int)(Math.random()*256), (int)(Math.random()*256), (int)(Math.random()*256));
+					panel.setBackground(myColor);
+					panel1.setBackground(myColor);
+					panel2.setBackground(myColor);
+					label.setBackground(myColor);
+					label.setForeground(new Color((int)(Math.random()*256), (int)(Math.random()*256), (int)(Math.random()*256)));
+				}
+			});
 			break;
 		case "기능21": // 구현부탁 드려요~
 
@@ -276,6 +299,7 @@ class MyFrame extends JFrame implements ActionListener {
 			AudioInputStream audioStream = AudioSystem.getAudioInputStream(audioFile);
 
 			clip.open(audioStream);
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -286,9 +310,13 @@ class MyFrame extends JFrame implements ActionListener {
 			switch (e.getActionCommand()) {
 			case "play":
 				clip.start();
+				label.setText("AUDIO START~");
+				timer.start();
 				break;
 			case "stop":
 				clip.stop();
+				label.setText("AUDIO STOP");
+				timer.stop();
 				break;
 			case "play again":
 				clip.setFramePosition(0);
