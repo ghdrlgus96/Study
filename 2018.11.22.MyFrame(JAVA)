@@ -1,11 +1,8 @@
 import java.awt.*;
 import java.awt.event.*;
-
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Clip;
-import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.UnsupportedAudioFileException;
+import java.awt.image.BufferedImage;
+import javax.imageio.ImageIO;
+import javax.sound.sampled.*;
 import javax.swing.*;
 import javax.swing.filechooser.*;
 import java.io.*;
@@ -14,26 +11,24 @@ class MyDialog extends JDialog {
 	private JTextField field = new JTextField(10);
 	private JButton button;
 	private JLabel label;
+
 	public MyDialog(JFrame frame, String lab, String but) {
 		super(frame, "Dialog", true);
 		label = new JLabel(lab);
 		button = new JButton(but);
-		
-		setLayout(new FlowLayout(10));
-		add(label);
-		add(field);
-		add(button);
-		setSize(400, 100);
-		setLocation(600, 150);
-		button.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				setVisible(false);
-			}
-		});
+		setLayout(new BorderLayout());
+		add(label, BorderLayout.NORTH);
+		add(field, BorderLayout.CENTER);
+		add(button, BorderLayout.SOUTH);
+		setSize(400, 110);
+		setLocation(600, 200);
+
+		button.addActionListener(e -> setVisible(false));
 		setVisible(true);
 	}
+
 	public String getField() {
-		if(field.getText().length() == 0)
+		if (field.getText().length() == 0)
 			return null;
 		return field.getText();
 	}
@@ -50,17 +45,19 @@ class MyFrame extends JFrame implements ActionListener {
 	JButton[] musicButton;
 	Clip clip;
 	Container c;
-	
+	JPanel panel;
+	JLabel[] labels = new JLabel[5];
+	int check = 0;
+
 	public MyFrame() {
 		setTitle("menu");
 		createMenu();
-		setSize(1000, 800);
+		setSize(500, 300);
 		setLocation(300, 100);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		
 		setVisible(true);
 	}
-	
+
 	private void createMenu() {
 		mb = new JMenuBar();
 		screenMenu = new JMenu[3];
@@ -70,138 +67,239 @@ class MyFrame extends JFrame implements ActionListener {
 		mb.add(screenMenu[0]);
 		mb.add(screenMenu[1]);
 		mb.add(screenMenu[2]);
-		
+
 		item = new JMenuItem[3][2];
+
 		screenMenu[0].add(item[0][0] = new JMenuItem("ColorChange"));
 		item[0][0].addActionListener(this);
 		screenMenu[0].addSeparator();
 		screenMenu[0].add(item[0][1] = new JMenuItem("기능01"));
 		item[0][1].addActionListener(this);
-		screenMenu[1].add(item[1][0] = new JMenuItem("OpenImage"));
+		screenMenu[1].add(item[1][0] = new JMenuItem("MaskImage"));
 		item[1][0].addActionListener(this);
 		screenMenu[1].addSeparator();
 		screenMenu[1].add(item[1][1] = new JMenuItem("기능11"));
 		item[1][1].addActionListener(this);
-		screenMenu[2].add(item[2][0] = new JMenuItem("OpenAudio"));
+		screenMenu[2].add(item[2][0] = new JMenuItem("PlayAudio"));
 		item[2][0].addActionListener(this);
 		screenMenu[2].addSeparator();
 		screenMenu[2].add(item[2][1] = new JMenuItem("기능21"));
 		item[2][1].addActionListener(this);
 		
+		mb.setBackground(Color.BLACK);
+		for(int i = 0; i < screenMenu.length; i++) {
+			screenMenu[i].setForeground(Color.YELLOW);
+			for(int j = 0; j < item[i].length; j++) {
+				item[i][j].setBackground(Color.BLACK);
+				item[i][j].setForeground(Color.YELLOW);
+			}
+		}
 		setJMenuBar(mb);
 	}
-	
+
 	public void actionPerformed(ActionEvent e) {
 		String str = e.getActionCommand();
-		c= getContentPane();
+		
+		c = getContentPane();
 		getContentPane().removeAll();
 		revalidate();
 		repaint();
-		
-		switch(str) {
+
+		panel = new JPanel();
+
+		switch (str) {
 		case "ColorChange":
+			panel.setLayout(new GridLayout(0, 1));
 			do {
-				dialog = new MyDialog(this, "출력을 하고 싶은 텍스트 입력   ", "OK");
+				dialog = new MyDialog(this, "출력을 하고 싶은 텍스트 입력해 주세요", "OK");
 				text = dialog.getField();
-			} while(text == null);
-			label = new JLabel(text);
-			label.setForeground(colorChooser());
-			label.setHorizontalAlignment(SwingConstants.CENTER);
-			label.setFont(new Font("Ravie", Font.ITALIC, 30));
-			c.add(label, BorderLayout.CENTER);
-			setSize(400, 200);
+			} while (text == null);
+			
+			labels[check] = new JLabel(text);
+			labels[check].setForeground(colorChooser());
+			labels[check].setHorizontalAlignment(SwingConstants.CENTER);
+			labels[check].setFont(new Font("Ravie", Font.ITALIC, 30));
+			
+			for(int i = 0; i <= check; i++)
+				panel.add(labels[i], BorderLayout.CENTER);
+			
+			if(check == 4)
+				check = 0;
+			else
+				check++;
+			panel.setSize(500, 300);
+
+			setSize(500, 300);
+			c.add(panel);
 			break;
-		case "기능01":
-			do {
-				dialog = new MyDialog(this, "텍스트를 입력하시오 기능01   ", "OK");
-				text = dialog.getField();
-			} while(text == null);
+		case "기능01": // 구현부탁 드려요
 			
 			break;
-		case "OpenImage":
-			label = new JLabel();
-			label.setIcon(new ImageIcon(fileChooser("jpg", "png")));
-			c.add(label);
-			pack(); // 이미지의 크기에 맞추어 프레임 크기 조절
+		case "MaskImage":
+			BufferedImage image;
+			int width, height;
+
+			try {
+				String path = fileChooser("jpg", "png");
+
+				if (path == null)
+					break;
+
+				File file = new File(path);
+
+				image = ImageIO.read(file);
+				width = image.getWidth();
+				height = image.getHeight();
+
+				do {
+					dialog = new MyDialog(this, "마스크할 색상을 입력하시오(normal, red, green, blue, reverse)", "OK");
+					text = dialog.getField();
+				} while (!(text.equals("normal") || text.equals("red") || text.equals("green") || text.equals("blue")
+						|| text.equals("reverse")));
+
+				int[] mask = new int[3];
+				if (text.equals("normal")) {
+					mask[0] = 255;
+					mask[1] = 255;
+					mask[2] = 255;
+				} else if (text.equals("red")) {
+					mask[0] = 255;
+					mask[1] = 0;
+					mask[2] = 0;
+				} else if (text.equals("green")) {
+					mask[0] = 0;
+					mask[1] = 255;
+					mask[2] = 0;
+				} else if (text.equals("blue")) {
+					mask[0] = 0;
+					mask[1] = 0;
+					mask[2] = 255;
+				}
+
+				if (text.equals("reverse")) {
+					for (int r = 0; r < height; r++) {
+						for (int c = 0; c < width; c++) {
+							Color color = new Color(image.getRGB(c, r));
+							int red = (int) ((color.getRed()) ^ 255);
+							int green = (int) ((color.getGreen()) ^ 255);
+							int blue = (int) ((color.getBlue()) ^ 255);
+							Color newColor = new Color(red, green, blue);
+							image.setRGB(c, r, newColor.getRGB());
+						}
+					}
+				} else {
+					for (int r = 0; r < height; r++) {
+						for (int c = 0; c < width; c++) {
+							Color color = new Color(image.getRGB(c, r));
+							int red = (int) ((color.getRed()) & mask[0]);
+							int green = (int) ((color.getGreen()) & mask[1]);
+							int blue = (int) ((color.getBlue()) & mask[2]);
+							Color newColor = new Color(red, green, blue);
+							image.setRGB(c, r, newColor.getRGB());
+						}
+					}
+				}
+
+				label = new JLabel();
+				label.setIcon(new ImageIcon(image));
+				panel.add(label);
+				c.add(panel);
+				pack();
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
 			break;
-		case "기능11":
-			do {
-				dialog = new MyDialog(this, "텍스트를 입력하시오 기능11   ", "OK");
-				text = dialog.getField();
-			} while(text == null);
-			
+		case "기능11": // 구현부탁 드려요
+
 			break;
-		case "OpenAudio":
-			loadAudio(fileChooser("wav", "wav"));
+		case "PlayAudio":
+			String path = fileChooser("wav", "wav");
+
+			if (path == null)
+				break;
+
+			loadAudio(path);
 			musicButton = new JButton[3];
-			musicButton[0] = new JButton("play"); musicButton[0].addActionListener(new MyActionListener());
-			musicButton[1] = new JButton("stop"); musicButton[1].addActionListener(new MyActionListener());
-			c.setLayout(new FlowLayout());
-			c.add(musicButton[0]); c.add(musicButton[1]);
+
+			musicButton[0] = new JButton("play");
+			musicButton[0].addActionListener(new MyActionListener());
+			musicButton[1] = new JButton("stop");
+			musicButton[1].addActionListener(new MyActionListener());
+			musicButton[2] = new JButton("play again");
+			musicButton[2].addActionListener(new MyActionListener());
+			panel.setLayout(new FlowLayout());
+
+			panel.add(musicButton[0]);
+			panel.add(musicButton[1]);
+			panel.add(musicButton[2]);
+			panel.setSize(400, 200);
 			setSize(400, 200);
+			c.add(panel);
 			break;
-		case "기능21":
-			do {
-				dialog = new MyDialog(this, "텍스트를 입력하시오 기능21   ", "OK");
-				text = dialog.getField();
-			} while(text == null);
-			
+		case "기능21": // 구현부탁 드려요~
+
 			break;
 		default:
 			System.out.println("실행되면 안됨");
 		}
-		
-//		setSize(1000, 801); setSize(1000, 800);
+		revalidate();
+		repaint();
 	}
-	Color colorChooser() {
+
+	public Color colorChooser() {
 		Color color = JColorChooser.showDialog(null, "Color", Color.BLACK);
 		return color;
 	}
-	String fileChooser(String s1, String s2) {
+
+	public String fileChooser(String s1, String s2) {
 		chooser = new JFileChooser();
-		FileNameExtensionFilter filter = 
-				new FileNameExtensionFilter(s1 + " & " + s2 + " Images", s1, s2);
+
+		FileNameExtensionFilter filter = new FileNameExtensionFilter(s1 + " & " + s2 + " Images", s1, s2);
+
 		chooser.setFileFilter(filter);
 
 		int ret = chooser.showOpenDialog(null);
-		if(ret != JFileChooser.APPROVE_OPTION) {
+
+		if (ret != JFileChooser.APPROVE_OPTION) {
 			JOptionPane.showMessageDialog(null, "파일을 선택하지 않았습니다", "경고", JOptionPane.WARNING_MESSAGE);
 			return null;
 		}
-		
+
 		return chooser.getSelectedFile().getPath();
 	}
-	void loadAudio(String pathName) {
+
+	public void loadAudio(String pathName) {
 		try {
-			clip = AudioSystem.getClip(); // 비어있는 오디오 클립 만들기
-			File audioFile = new File(pathName); // 오디오 파일의 경로명
+			clip = AudioSystem.getClip();
+			File audioFile = new File(pathName);
+
 			AudioInputStream audioStream = AudioSystem.getAudioInputStream(audioFile);
-			clip.open(audioStream); // 재생할 오디오 스트림 열기
+
+			clip.open(audioStream);
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-		catch (LineUnavailableException e) { e.printStackTrace(); }
-		catch (UnsupportedAudioFileException e) { e.printStackTrace(); }
-		catch (IOException e) { e.printStackTrace(); }
 	}
+
 	class MyActionListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
-			switch(e.getActionCommand()) {
-				case "play":
-					System.out.println("zz");
-					clip.start(); // 오디오 재생 시작
-					break;
-				case "stop":
-					clip.stop(); // 오디오 재생 중단
-					break;
-				case "play again":
-					clip.setFramePosition(0);
-					clip.start();
-					break;
+			switch (e.getActionCommand()) {
+			case "play":
+				clip.start();
+				break;
+			case "stop":
+				clip.stop();
+				break;
+			case "play again":
+				clip.setFramePosition(0);
+				clip.start();
+				break;
 			}
 		}
 	}
 }
 
-public class Hw4Frame {
+public class HW4MyFrame {
 	public static void main(String[] args) {
 		new MyFrame();
 	}
