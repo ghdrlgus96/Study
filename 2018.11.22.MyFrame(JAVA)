@@ -6,76 +6,80 @@ import javax.sound.sampled.*;
 import javax.swing.*;
 import javax.swing.filechooser.*;
 import java.io.*;
-
+//다이얼로그를 상속받은 class
 class MyDialog extends JDialog {
 	private JTextField field = new JTextField(10);
 	private JButton button;
 	private JLabel label;
-
+	//다이얼로그의 인자 있는 생성자, 각 컴포넌트에 출력할 문자열을 매개변수로 받는다.
 	public MyDialog(JFrame frame, String lab, String but) {
-		super(frame, "Dialog", true);
+		super(frame, "Dialog", true);	//사용자입력을 독점하는 모달다이얼로그 생성
 		label = new JLabel(lab);
 		button = new JButton(but);
 		setLayout(new BorderLayout());
 		add(label, BorderLayout.NORTH);
 		add(field, BorderLayout.CENTER);
 		add(button, BorderLayout.SOUTH);
-		setSize(400, 110);
-		setLocation(600, 200);
-
+		setSize(400, 110);	//다이얼로그의 size는 400 X 110이다.
+		setLocation(600, 200);	//다이얼로그의 위치는 600, 200이다.
+		//다이얼로그의 버튼의 이벤트를 람다식으로 선언했다.
 		button.addActionListener(e -> setVisible(false));
+		//다이얼로그를 화면에 보이게 한다.
 		setVisible(true);
 	}
-
+	//다이얼로그에 입력받은 텍스트를 출력하는 메소드
 	public String getField() {
+		//만약 입력받은 것이 없다면 null을 반환한다.
 		if (field.getText().length() == 0)
 			return null;
 		return field.getText();
 	}
 }
-
+//Frame을 상속받아 출력하는 class이다.
 class MyFrame extends JFrame implements ActionListener {
-	JMenuBar mb;
-	JMenu[] screenMenu;
-	JMenuItem[][] item;
-	MyDialog dialog;
-	String text;
-	JLabel label;
-	JFileChooser chooser;
-	JButton[] musicButton;
-	Clip clip;
-	Container c;
-	JPanel panel;
+	JMenuBar mb;	//메뉴바 선언
+	JMenu[] screenMenu;	//메뉴선언
+	JMenuItem[][] item;	//메뉴 아이템 선언
+	MyDialog dialog;	//다이얼로그 선언
+	String text;	//문자열을 저장할 수 있는 text 선언
+	JLabel label;	//문자열 상수를 저장할 수 있는 JLabel 선언
+	JFileChooser chooser;	//파일을 열 수 있는 다이얼로그 선언
+	JButton[] musicButton;	//JButton 배열 선언
+	Clip clip;	//오디오 Clip 인터페이스 선언
+	Container c;	//콘텐트 페인을 저장할 수 있는 Container 선언
+	JPanel panel;	//panel 선언
 	JLabel[] labels = new JLabel[5];
-	int check = 0;
-	Timer timer;
-	BufferedImage image;
-	int width, height;
-	Clip[] clips;
-
+	int check = 0, width, height;
+	Timer timer;	//타이머 선언
+	BufferedImage image;	//이미지 버퍼 선언
+	//MyFrame의 인자 없는 생성자
 	public MyFrame() {
 		setTitle("menu");
-		createMenu();
+		createMenu();	//메뉴바를 생성하고 붙이는 메소드를 호출한다.
 		setSize(500, 300);
 		setLocation(300, 100);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setVisible(true);
 	}
-
+	//메뉴바를 생성하고 붙이는 메소드, 이 class에서만 쓰이니 private 선언
 	private void createMenu() {
-		mb = new JMenuBar();
+		mb = new JMenuBar();	//메뉴바 생성
 		screenMenu = new JMenu[3];
+		//메뉴바에 붙일 메뉴를 생성
 		screenMenu[0] = new JMenu("Text");
 		screenMenu[1] = new JMenu("Image");
 		screenMenu[2] = new JMenu("Audio");
+		//메뉴를 메뉴바에 붙인다
 		mb.add(screenMenu[0]);
 		mb.add(screenMenu[1]);
 		mb.add(screenMenu[2]);
-
+		//메뉴에 붙일 메뉴아이템을 생성
 		item = new JMenuItem[3][2];
+		//메뉴에 메뉴아이템을 생성하면서 붙인다.
 		screenMenu[0].add(item[0][0] = new JMenuItem("ColorChange"));
+		//메뉴아이템 선택시 실행되는 actionPerformed는 이 class에서 구현하였으므로, this를 넘긴다.
 		item[0][0].addActionListener(this);
-		screenMenu[0].addSeparator();
+		screenMenu[0].addSeparator();	//분리선 추가
 		screenMenu[0].add(item[0][1] = new JMenuItem("SizeChange"));
 		item[0][1].addActionListener(this);
 		screenMenu[1].add(item[1][0] = new JMenuItem("MaskImage"));
@@ -88,12 +92,15 @@ class MyFrame extends JFrame implements ActionListener {
 		screenMenu[2].addSeparator();
 		screenMenu[2].add(item[2][1] = new JMenuItem("LoopAudio"));
 		item[2][1].addActionListener(this);
-
+		//메뉴바의 배경 색상을 바꾼다.
 		mb.setBackground(Color.BLACK);
 		for (int i = 0; i < screenMenu.length; i++) {
+			//메뉴의 글자색은 노란색으로 바꾼다.
 			screenMenu[i].setForeground(Color.YELLOW);
+			//메뉴의 폰트는 Serif, 굵게, 사이즈는 15로 바꾼다.
 			screenMenu[i].setFont(new Font("Serif", Font.BOLD, 15));
 			for (int j = 0; j < item[i].length; j++) {
+				//메뉴아이템의 폰트는 Serif, 굵게, 사이즈는 15로 바꾼다.
 				item[i][j].setFont(new Font("Serif", Font.BOLD, 15));
 				item[i][j].setBackground(Color.BLACK);
 				item[i][j].setForeground(Color.YELLOW);
@@ -101,108 +108,104 @@ class MyFrame extends JFrame implements ActionListener {
 		}
 		setJMenuBar(mb);
 	}
-
+	//메뉴아이템을 선택했을시 실행되는 액션을 구현한 메소드이다.
 	public void actionPerformed(ActionEvent e) {
+		//어떤 메뉴아이템이 눌렸는지 문자열을 받는다.
 		String str = e.getActionCommand();
-		c = getContentPane();
-		getContentPane().removeAll();
-		revalidate();
-		repaint();
+		c = getContentPane();	//콘텐트 페인을 받는다.
+		getContentPane().removeAll();	//콘텐트 페인의 모든 것을 지운다.
+		revalidate();	//너비, 높이에 영향을 주는 속성 변경시 사용
+		repaint();	//모양에 영향을 주는 속성 변경시 사용
 
-		panel = new JPanel();
+		panel = new JPanel();	//panel을 새로 생성
+		panel.setSize(500, 300);	//panel의 size는 500 X 300
+		setSize(500, 300);	//frame의 size는 500 X 300
 
 		switch (str) {
-		case "ColorChange":
+		case "ColorChange":	//만약 선택된 메뉴 아이템이 ColorChange라면
+			//panel의 배치관리자는 GridLayout으로 설정
 			panel.setLayout(new GridLayout(0, 1));
 			do {
 				dialog = new MyDialog(this, "출력을 하고 싶은 텍스트 입력해 주세요", "OK");
 				text = dialog.getField();
-			} while (text == null);
-
+			} while (text == null);	//text에 입력이 있을때까지 다이얼로그로 입력을 받는다.
+			//label 배열에 새로운 label을 하나 추가한다.
 			labels[check] = new JLabel(text);
+			//label의 색상을 변경한다. colorChooser 메소드는 JColorChooser를 호출한다.
 			labels[check].setForeground(colorChooser());
+			//label의 가운데에 정렬한다.
 			labels[check].setHorizontalAlignment(SwingConstants.CENTER);
+			//label의 폰트를 변경한다.
 			labels[check].setFont(new Font("Ravie", Font.ITALIC, 30));
-
+			//현재까지 입력된 label 만큼 출력한다.
 			for (int i = 0; i <= check; i++)
 				panel.add(labels[i], BorderLayout.CENTER);
-
+			//만약 5개 이상 입력이 된다면 다시 처음부터 입력을 받는다.
 			if (check == 4)
 				check = 0;
 			else
 				check++;
-
-			panel.setSize(500, 300);
-			setSize(500, 300);
-			c.add(panel);
+			c.add(panel);	//콘텐트 페인에 panel을 붙인다.
 			break;
-		case "SizeChange": // 글자 크기에 대한 것 !
-			String temp; // 글자크기설정을 위해서 임의의 temp값 주었음
+		case "SizeChange":	//만약 선택된 메뉴 아이템이 SizeChange라면
+			//panel의 배치관리자는 GridLayout으로 설정
 			panel.setLayout(new GridLayout(0, 1));
+			String temp;
 			do {
 				dialog = new MyDialog(this, "출력을 하고 싶은 텍스트 입력해 주세요", "OK");
 				text = dialog.getField();
-			} while (text == null);
+			} while (text == null);	//text에 입력이 있을때까지 다이얼로그로 입력을 받는다.
 			do {
 				dialog = new MyDialog(this, "원하는 글자 크기를 적어주세요", "OK");
 				temp = dialog.getField();
-			} while (temp == null);
-			int temp1 = Integer.parseInt(temp);
-
+			} while (temp == null);	//temp에 입력이 있을때까지 다이얼로그로 입력을 받는다.
+			int temp1 = Integer.parseInt(temp);	//원하는 글자크기를 정수형으로 바꾼다.
+			//label 배열에 새로운 label을 하나 추가한다.
 			labels[check] = new JLabel(text);
 			labels[check].setHorizontalAlignment(SwingConstants.CENTER);
+			//label의 폰트를 변경한다. 이때 사용자가 입력한 글자크기로 바꾼다.
 			labels[check].setFont(new Font("Ravie", Font.ITALIC, temp1));
 
 			for (int i = 0; i <= check; i++)
 				panel.add(labels[i], BorderLayout.CENTER);
-
+			//만약 5개 이상 입력이 된다면 다시 처음부터 입력을 받는다.
 			if (check == 4)
 				check = 0;
 			else
 				check++;
-
-			panel.setSize(500, 300);
-			setSize(500, 300);
-			c.add(panel); // 나머지 부분은 똑같습니다.
+			c.add(panel);	//콘텐트 페인에 panel을 붙인다.
 			break;
-		case "MaskImage":
+		case "MaskImage":	//만약 선택된 메뉴 아이템이 MaskImage라면
 			try {
+				//fileChooser 메소드는 JFileChooser를 생성하고 사용자가 인자로 넘긴 확장자의 파일을 선택하고, 그 주소를 반환한다.
 				String path = fileChooser("jpg", "png");
-
 				if (path == null)
 					break;
-
-				File file = new File(path);
-
-				image = ImageIO.read(file);
-				width = image.getWidth();
-				height = image.getHeight();
+				File file = new File(path);	//사용자가 선택한 파일의 주소 객체를 생성
+				image = ImageIO.read(file);	//이미지버퍼에 이미지를 읽어온다.
+				width = image.getWidth();	//너비를 받는다.
+				height = image.getHeight();	//높이를 받는다.
 
 				do {
 					dialog = new MyDialog(this, "마스크할 색상을 입력하시오(normal, red, green, blue, reverse)", "OK");
 					text = dialog.getField();
-				} while (!(text.equals("normal") || text.equals("red") || text.equals("green") || text.equals("blue")
-						|| text.equals("reverse")));
-
+				} while (!(text.equals("normal") || text.equals("red") || text.equals("green") || text.equals("blue") || text.equals("reverse")));
+				//마스킹하고 싶은 색상을 입력한다. 마스킹을 원하는 않는 경우 normal을 입력한다.
 				int[] mask = new int[3];
 				if (text.equals("normal")) {
-					mask[0] = 255;
-					mask[1] = 255;
-					mask[2] = 255;
+					//normal이면 mask에 전부 255를 준다. (색상별로 8비트 이기 때문)
+					mask[0] = 255; mask[1] = 255; mask[2] = 255;
 				} else if (text.equals("red")) {
-					mask[0] = 255;
-					mask[1] = 0;
-					mask[2] = 0;
+					//빨간색이면 빨간색을 제외한 부분은 0으로 mask 한다.
+					mask[0] = 255; mask[1] = 0; mask[2] = 0;
 				} else if (text.equals("green")) {
-					mask[0] = 0;
-					mask[1] = 255;
-					mask[2] = 0;
+					//초록색이면 초록색을 제외한 부분은 0으로 mask 한다.
+					mask[0] = 0; mask[1] = 255; mask[2] = 0;
 				} else if (text.equals("blue")) {
-					mask[0] = 0;
-					mask[1] = 0;
-					mask[2] = 255;
+					//파란색이면 파란색을 제외한 부분은 0으로 mask 한다.
+					mask[0] = 0; mask[1] = 0; mask[2] = 255;
 				}
-
+				//만약 reverse를 선택하였다면 색상 반전이므로 모든 픽셀에 XOR 1 을 하면 0과 1이 반전된다.
 				if (text.equals("reverse")) {
 					for (int r = 0; r < height; r++) {
 						for (int c = 0; c < width; c++) {
@@ -211,10 +214,12 @@ class MyFrame extends JFrame implements ActionListener {
 							int green = (int) ((color.getGreen()) ^ 255);
 							int blue = (int) ((color.getBlue()) ^ 255);
 							Color newColor = new Color(red, green, blue);
+							//이미지버퍼에 색상 반전한 색으로 다시 세팅한다.
 							image.setRGB(c, r, newColor.getRGB());
 						}
 					}
 				} else {
+					//그 외의 경우 마스킹 하고 싶은 색상과 AND 연산자를 하면 원하는 색상만 추출할 수 있다.
 					for (int r = 0; r < height; r++) {
 						for (int c = 0; c < width; c++) {
 							Color color = new Color(image.getRGB(c, r));
@@ -222,122 +227,140 @@ class MyFrame extends JFrame implements ActionListener {
 							int green = (int) ((color.getGreen()) & mask[1]);
 							int blue = (int) ((color.getBlue()) & mask[2]);
 							Color newColor = new Color(red, green, blue);
+							//이미지버퍼에 마스킹한 색상으로 다시 세팅한다.
 							image.setRGB(c, r, newColor.getRGB());
 						}
 					}
 				}
-
 				label = new JLabel();
+				//label에 변환한 이미지를 이미지 아이콘으로 만들어 붙인다.
 				label.setIcon(new ImageIcon(image));
 				panel.add(label);
 				c.add(panel);
-				pack();
+				pack();	//이미지의 크기에 맞추어 프레임 크기를 조정한다.
 			} catch (Exception ex) {
 				ex.printStackTrace();
 			}
 			break;
-		case "ReverseImage":
+		case "ReverseImage":	//만약 선택된 메뉴 아이템이 MaskImage라면
 			try {
+				//fileChooser 메소드는 JFileChooser를 생성하고 사용자가 인자로 넘긴 확장자의 파일을 선택하고, 그 주소를 반환한다.
 				String path = fileChooser("jpg", "png");
+				//좌우 반전한 이미지를 저장할 이미지버퍼를 선언한다.
 				BufferedImage image1;
 				if (path == null)
 					break;
 
-				File file = new File(path);
-
-				image = ImageIO.read(file);
+				File file = new File(path);	//사용자가 선택한 파일의 주소 객체를 생성
+				image = ImageIO.read(file);	//이미지버퍼에 이미지를 읽어온다.
 				image1 = ImageIO.read(file);
-				width = image.getWidth();
-				height = image.getHeight();
-
+				width = image.getWidth();	//너비를 받는다.
+				height = image.getHeight();	//높이를 받는다.
+				//좌우 반전이면 x, 상하 반전이면 y를 입력한다.
 				do {
 					dialog = new MyDialog(this, "반전시킬 방향을 입력하세요(x, y)", "OK");
 					text = dialog.getField();
 				} while (!(text.equals("x") || text.equals("y")));
-
+				//좌우 반전 선택 시,
 				if (text.equals("x")) {
 					for (int r = 0; r < height; r++) {
 						for (int c = 0; c < width; c++) {
 							Color color = new Color(image.getRGB(c, r));
 							Color newColor = new Color(color.getRed(), color.getGreen(), color.getBlue());
+							//image1의 x 대칭 변환한 좌표에 색상을 삽입한다.
 							image1.setRGB(width - 1 - c, r, newColor.getRGB());
 						}
 					}
 				} else {
+					//상하 반전 선택시,
 					for (int r = 0; r < height; r++) {
 						for (int c = 0; c < width; c++) {
 							Color color = new Color(image.getRGB(c, r));
 							Color newColor = new Color(color.getRed(), color.getGreen(), color.getBlue());
+							//image1의 y 대칭 변환한 좌표에 색상을 삽입한다.
 							image1.setRGB(c, height - 1 - r, newColor.getRGB());
 						}
 					}
 				}
-
 				label = new JLabel();
+				////label에 변환한 이미지를 이미지 아이콘으로 만들어 붙인다.
 				label.setIcon(new ImageIcon(image1));
 				panel.add(label);
 				c.add(panel);
-				pack();
+				pack();	//이미지 크기에 맞춰 프레임 크기를 조정한다.
 			} catch (Exception ex) {
 				ex.printStackTrace();
 			}
 			break;
-		case "PlayAudio":
+		case "PlayAudio":	//만약 선택된 메뉴 아이템이 MaskImage라면
+			//fileChooser 메소드는 JFileChooser를 생성하고 사용자가 인자로 넘긴 확장자의 파일을 선택하고, 그 주소를 반환한다.
 			String path = fileChooser("wav", "wav");
-
 			if (path == null)
 				break;
-
-			loadAudio(path);
-			musicButton = new JButton[3];
+			loadAudio(path);	//loadAudio 메소드는 전달받는 주소로 오디오 클립을 만든다.
+			musicButton = new JButton[3];	//audio를 컨트롤 할 버튼 3개를 선언한다.
+			//panel에 붙일 panel 2개를 생성한다.
 			JPanel panel1 = new JPanel(), panel2 = new JPanel();
-
+			//버튼을 생성한다.
 			musicButton[0] = new JButton("play");
+			//버튼을 클릭할 시 실행할 이벤트를 작성한 MyActionListener class를 붙인다.
 			musicButton[0].addActionListener(new MyActionListener());
 			musicButton[1] = new JButton("stop");
 			musicButton[1].addActionListener(new MyActionListener());
 			musicButton[2] = new JButton("play again");
 			musicButton[2].addActionListener(new MyActionListener());
+			//panel의 배치 관리자는 GridLayout으로 한다.
 			panel.setLayout(new GridLayout(0, 1));
 
 			panel1.add(musicButton[0]);
 			panel1.add(musicButton[1]);
 			panel1.add(musicButton[2]);
+			//label은 현재 오디오 상태를 나타내는 문자열을 저장한다.
 			label = new JLabel("AUDIO STOP~");
+			//label의 폰트는 Ravie, ITALIC체, 사이즈는 50으로 설정한다.
 			label.setFont(new Font("Ravie", Font.ITALIC, 50));
-
+			//panel2에는 label을 붙인다.
 			panel2.add(label);
-			panel.setSize(500, 300);
-
+			//panel에 panel1, panel2를 붙인다.
 			panel.add(panel1);
 			panel.add(panel2);
-
-			setSize(500, 300);
-			c.add(panel);
+			c.add(panel);	//콘텐트 페인에 panel을 붙인다.
+			//오디오가 실행될때 같이 실행할 타이머를 생성한다. 이때 타이머가 일정 시간마다 실행할 메소드는 무명 클래스로 작성하였다.
+			//타이머는 0.5초마다 배경색과 현재 상태를 나타내는 문자열의 색상을 변경한다. 이때 변경되는 색상을 랜덤으로 한다.
 			timer = new Timer(500, new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
-					Color myColor = new Color((int) (Math.random() * 256), (int) (Math.random() * 256),
-							(int) (Math.random() * 256));
+					Color myColor = new Color((int) (Math.random() * 256), (int) (Math.random() * 256), (int)(Math.random() * 256));
 					panel.setBackground(myColor);
 					panel1.setBackground(myColor);
 					panel2.setBackground(myColor);
 					label.setBackground(myColor);
-					label.setForeground(new Color((int) (Math.random() * 256), (int) (Math.random() * 256),
-							(int) (Math.random() * 256)));
+					label.setForeground(new Color((int) (Math.random() * 256), (int) (Math.random() * 256), (int)(Math.random() * 256)));
+				}
+			});
+			//오디오의 재생이 끝났을 때, 오디오가 끝났다는 상태를 표시하는 문자열을 갱신한다.
+			clip.addLineListener(new LineListener() {
+				public void update(LineEvent e) {
+					//만약 update된 상태가 STOP이라면 실행한다.
+					if (!(e.getType() == LineEvent.Type.START)) {
+						timer.stop();	//타이머를 종료한다.
+						label.setText("Audio Stop~");	//문자열을 갱신한다.
+					}
 				}
 			});
 			break;
-		case "LoopAudio": // 구현부탁 드려요~
+		case "LoopAudio":	//만약 선택된 메뉴 아이템이 LoopAudio라면
+			//fileChooser 메소드는 JFileChooser를 생성하고 사용자가 인자로 넘긴 확장자의 파일을 선택하고, 그 주소를 반환한다.
 			path = fileChooser("wav", "wav");
-
 			if (path == null)
 				break;
 
-			loadAudio(path);
-			musicButton = new JButton[2];
+			loadAudio(path);	//loadAudio 메소드는 전달받는 주소로 오디오 클립을 만든다.
+			musicButton = new JButton[2];	//audio를 컨트롤 할 버튼 3개를 선언한다.
+			//panel에 붙일 panel 2개를 생성한다.
 			panel1 = new JPanel(); panel2 = new JPanel();
-			
+			//버튼을 생성한다.
 			musicButton[0] = new JButton("stop");
+			//버튼을 클릭할 시 실행할 이벤트를 작성한 MyActionListener class를 붙인다.
 			musicButton[0].addActionListener(new MyActionListener());
 			musicButton[1] = new JButton("loop");
 			musicButton[1].addActionListener(new MyActionListener());
@@ -345,17 +368,17 @@ class MyFrame extends JFrame implements ActionListener {
 
 			panel1.add(musicButton[0]);
 			panel1.add(musicButton[1]);
+			//label은 현재 오디오 상태를 나타내는 문자열을 저장한다.
 			label = new JLabel("AUDIO STOP~");
+			//label의 폰트는 Ravie, ITALIC체, 사이즈는 50으로 설정한다.
 			label.setFont(new Font("Ravie", Font.ITALIC, 50));
 			
 			panel2.add(label);
-			panel.setSize(500, 300);
-			
 			panel.add(panel1);
 			panel.add(panel2);
-			
-			setSize(500, 300);
-			c.add(panel);
+			c.add(panel);	//콘텐트 페인에 panel을 붙인다.
+			//오디오가 실행될때 같이 실행할 타이머를 생성한다. 이때 타이머가 일정 시간마다 실행할 메소드는 무명 클래스로 작성하였다.
+			//타이머는 0.5초마다 배경색과 현재 상태를 나타내는 문자열의 색상을 변경한다. 이때 변경되는 색상을 랜덤으로 한다.
 			timer = new Timer(500, new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
 					Color myColor = new Color((int)(Math.random()*256), (int)(Math.random()*256), (int)(Math.random()*256));
@@ -367,68 +390,75 @@ class MyFrame extends JFrame implements ActionListener {
 				}
 			});
 			break;
-		default:
-			System.out.println("실행되면 안됨");
 		}
-		revalidate();
-		repaint();
+		//panel을 새롭게 붙였으니 다시 그려줘야 갱신이 된다.
+		revalidate();	//너비, 높이에 영향을 주는 속성 변경시 사용
+		repaint();	//모양에 영향을 주는 속성 변경시 사용
 	}
-
+	//JColorChooser 다이얼로그를 호출하고 사용자가 선택한 색상을 반환하는 메소드이다.
 	public Color colorChooser() {
 		Color color = JColorChooser.showDialog(null, "Color", Color.BLACK);
 		return color;
 	}
-
+	//JFileChooser 다이얼로그를 호출하고 사용자가 선택한 파일의 경로를 반환하는 메소드이다.
 	public String fileChooser(String s1, String s2) {
+		//JFileChooser 객체를 생성한다.
 		chooser = new JFileChooser();
-
+		//파일 필터 객체를 생성
 		FileNameExtensionFilter filter = new FileNameExtensionFilter(s1 + " & " + s2 + " Images", s1, s2);
-
+		//파일 필터를 설정한다.
 		chooser.setFileFilter(filter);
-
+		//파일 열기 다이얼로그 호출
 		int ret = chooser.showOpenDialog(null);
-
+		//만약 파일을 선택하지 않았다면 호출
 		if (ret != JFileChooser.APPROVE_OPTION) {
 			JOptionPane.showMessageDialog(null, "파일을 선택하지 않았습니다", "경고", JOptionPane.WARNING_MESSAGE);
 			return null;
 		}
-
+		//사용자가 선택한 파일의 경로를 반환한다.
 		return chooser.getSelectedFile().getPath();
 	}
-
+	//전달받은 경로의 오디오 파일을 clip에 연결하는 메소드
 	public void loadAudio(String pathName) {
 		try {
+			//비어있는 오디오 클립을 생성
 			clip = AudioSystem.getClip();
+			//매개변수로 받은 경로명으로 객체를 생성
 			File audioFile = new File(pathName);
+			//오디오 클립에 오디오 스트림 연결한다. 오디오 파일로부터 오디오를 읽을 스트림 객체 생성한다.
 			AudioInputStream audioStream = AudioSystem.getAudioInputStream(audioFile);
+			//오디오 큽립에 오디오 스트림을 연결한다.
 			clip.open(audioStream);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-
+	//Audio를 조작하는 버튼이 수행할 이벤트들을 작성해놓은 class이다.
 	class MyActionListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
 			switch (e.getActionCommand()) {
-			case "play":
-				clip.start();
-				label.setText("AUDIO START~");
-				timer.start();
+			case "play":	//만약 선택한 버튼이 play버튼이라면
+				clip.start();	//audio를 재생한다.
+				label.setText("AUDIO START~");	//오디오 상태 메시지를 바꾼다.
+				timer.start();	//타이머를 실행한다.
 				break;
-			case "stop":
-				clip.stop();
-				label.setText("AUDIO STOP");
-				timer.stop();
+			case "stop":	//만약 선택한 버튼이 stop버튼이라면
+				clip.stop();	//audio를 중지한다.
+				label.setText("AUDIO STOP~");	//오디오 상태 메시지를 바꾼다.
+				timer.stop();	//타이머를 중지한다.
 				break;
-			case "play again":
+			case "play again":	//만약 선택한 버튼이 play again버튼이라면
+				//오디오 샘플 내에 재생할 프레임 위치를 지정한다.
 				clip.setFramePosition(0);
 				label.setText("AUDIO START~");
 				timer.start();
 				clip.start();
 				break;
 			case "loop":
+				//오디오 샘플 내에 재생할 프레임 위치를 지정한다.
 				clip.setFramePosition(0);
 				label.setText("AUDIO START~");
+				//count만큼 반복한다. Clip.LOOP_CONTINUOUSLY 라면 무한 반복한다.
 				clip.loop(Clip.LOOP_CONTINUOUSLY);
 				timer.start();
 				clip.start();
