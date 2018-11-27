@@ -70,11 +70,10 @@ class MyFrame extends JFrame implements ActionListener {
 		mb.add(screenMenu[2]);
 
 		item = new JMenuItem[3][2];
-
 		screenMenu[0].add(item[0][0] = new JMenuItem("ColorChange"));
 		item[0][0].addActionListener(this);
 		screenMenu[0].addSeparator();
-		screenMenu[0].add(item[0][1] = new JMenuItem("기능01"));
+		screenMenu[0].add(item[0][1] = new JMenuItem("SizeChange"));
 		item[0][1].addActionListener(this);
 		screenMenu[1].add(item[1][0] = new JMenuItem("MaskImage"));
 		item[1][0].addActionListener(this);
@@ -102,7 +101,6 @@ class MyFrame extends JFrame implements ActionListener {
 
 	public void actionPerformed(ActionEvent e) {
 		String str = e.getActionCommand();
-		
 		c = getContentPane();
 		getContentPane().removeAll();
 		revalidate();
@@ -130,13 +128,39 @@ class MyFrame extends JFrame implements ActionListener {
 				check = 0;
 			else
 				check++;
+			
 			panel.setSize(500, 300);
-
 			setSize(500, 300);
 			c.add(panel);
 			break;
-		case "기능01": // 구현부탁 드려요
+		case "SizeChange": // 글자 크기에 대한 것 !
+			String temp;    //글자크기설정을 위해서 임의의 temp값 주었음
+			panel.setLayout(new GridLayout(0, 1));
+			do {
+				dialog = new MyDialog(this, "출력을 하고 싶은 텍스트 입력해 주세요", "OK");
+				text = dialog.getField();
+			} while (text == null);
+			do {
+				dialog = new MyDialog(this, "원하는 글자 크기를 적어주세요", "OK");
+				temp = dialog.getField();
+			} while (temp == null);
+			int temp1 = Integer.parseInt(temp);
 			
+			labels[check] = new JLabel(text);
+			labels[check].setHorizontalAlignment(SwingConstants.CENTER);
+			labels[check].setFont(new Font("Ravie", Font.ITALIC, temp1));
+			
+			for(int i = 0; i <= check; i++)
+				panel.add(labels[i], BorderLayout.CENTER);
+			
+			if(check == 4)
+				check = 0;
+			else
+				check++;
+			
+			panel.setSize(500, 300);
+			setSize(500, 300);
+			c.add(panel);    //나머지 부분은 똑같습니다.		
 			break;
 		case "MaskImage":
 			BufferedImage image;
@@ -162,21 +186,13 @@ class MyFrame extends JFrame implements ActionListener {
 
 				int[] mask = new int[3];
 				if (text.equals("normal")) {
-					mask[0] = 255;
-					mask[1] = 255;
-					mask[2] = 255;
+					mask[0] = 255; mask[1] = 255; mask[2] = 255;
 				} else if (text.equals("red")) {
-					mask[0] = 255;
-					mask[1] = 0;
-					mask[2] = 0;
+					mask[0] = 255; mask[1] = 0; mask[2] = 0;
 				} else if (text.equals("green")) {
-					mask[0] = 0;
-					mask[1] = 255;
-					mask[2] = 0;
+					mask[0] = 0; mask[1] = 255; mask[2] = 0;
 				} else if (text.equals("blue")) {
-					mask[0] = 0;
-					mask[1] = 0;
-					mask[2] = 255;
+					mask[0] = 0; mask[1] = 0; mask[2] = 255;
 				}
 
 				if (text.equals("reverse")) {
@@ -248,7 +264,7 @@ class MyFrame extends JFrame implements ActionListener {
 			
 			setSize(500, 300);
 			c.add(panel);
-			timer = new Timer(1000, new ActionListener() {
+			timer = new Timer(500, new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
 					Color myColor = new Color((int)(Math.random()*256), (int)(Math.random()*256), (int)(Math.random()*256));
 					panel.setBackground(myColor);
@@ -295,11 +311,8 @@ class MyFrame extends JFrame implements ActionListener {
 		try {
 			clip = AudioSystem.getClip();
 			File audioFile = new File(pathName);
-
 			AudioInputStream audioStream = AudioSystem.getAudioInputStream(audioFile);
-
 			clip.open(audioStream);
-			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -320,6 +333,8 @@ class MyFrame extends JFrame implements ActionListener {
 				break;
 			case "play again":
 				clip.setFramePosition(0);
+				label.setText("AUDIO START~");
+				timer.start();
 				clip.start();
 				break;
 			}
