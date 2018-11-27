@@ -1,7 +1,7 @@
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.image.BufferedImage;
-import javax.imageio.ImageIO;
+import java.awt.image.*;
+import javax.imageio.*;
 import javax.sound.sampled.*;
 import javax.swing.*;
 import javax.swing.filechooser.*;
@@ -49,6 +49,9 @@ class MyFrame extends JFrame implements ActionListener {
 	JLabel[] labels = new JLabel[5];
 	int check = 0;
 	Timer timer;
+	BufferedImage image;
+	int width, height;
+	Clip[] clips;
 
 	public MyFrame() {
 		setTitle("menu");
@@ -78,19 +81,19 @@ class MyFrame extends JFrame implements ActionListener {
 		screenMenu[1].add(item[1][0] = new JMenuItem("MaskImage"));
 		item[1][0].addActionListener(this);
 		screenMenu[1].addSeparator();
-		screenMenu[1].add(item[1][1] = new JMenuItem("기능11"));
+		screenMenu[1].add(item[1][1] = new JMenuItem("ReverseImage"));
 		item[1][1].addActionListener(this);
 		screenMenu[2].add(item[2][0] = new JMenuItem("PlayAudio"));
 		item[2][0].addActionListener(this);
 		screenMenu[2].addSeparator();
-		screenMenu[2].add(item[2][1] = new JMenuItem("기능21"));
+		screenMenu[2].add(item[2][1] = new JMenuItem("LoopAudio"));
 		item[2][1].addActionListener(this);
-		
+
 		mb.setBackground(Color.BLACK);
-		for(int i = 0; i < screenMenu.length; i++) {
+		for (int i = 0; i < screenMenu.length; i++) {
 			screenMenu[i].setForeground(Color.YELLOW);
 			screenMenu[i].setFont(new Font("Serif", Font.BOLD, 15));
-			for(int j = 0; j < item[i].length; j++) {
+			for (int j = 0; j < item[i].length; j++) {
 				item[i][j].setFont(new Font("Serif", Font.BOLD, 15));
 				item[i][j].setBackground(Color.BLACK);
 				item[i][j].setForeground(Color.YELLOW);
@@ -115,26 +118,26 @@ class MyFrame extends JFrame implements ActionListener {
 				dialog = new MyDialog(this, "출력을 하고 싶은 텍스트 입력해 주세요", "OK");
 				text = dialog.getField();
 			} while (text == null);
-			
+
 			labels[check] = new JLabel(text);
 			labels[check].setForeground(colorChooser());
 			labels[check].setHorizontalAlignment(SwingConstants.CENTER);
 			labels[check].setFont(new Font("Ravie", Font.ITALIC, 30));
-			
-			for(int i = 0; i <= check; i++)
+
+			for (int i = 0; i <= check; i++)
 				panel.add(labels[i], BorderLayout.CENTER);
-			
-			if(check == 4)
+
+			if (check == 4)
 				check = 0;
 			else
 				check++;
-			
+
 			panel.setSize(500, 300);
 			setSize(500, 300);
 			c.add(panel);
 			break;
 		case "SizeChange": // 글자 크기에 대한 것 !
-			String temp;    //글자크기설정을 위해서 임의의 temp값 주었음
+			String temp; // 글자크기설정을 위해서 임의의 temp값 주었음
 			panel.setLayout(new GridLayout(0, 1));
 			do {
 				dialog = new MyDialog(this, "출력을 하고 싶은 텍스트 입력해 주세요", "OK");
@@ -145,27 +148,24 @@ class MyFrame extends JFrame implements ActionListener {
 				temp = dialog.getField();
 			} while (temp == null);
 			int temp1 = Integer.parseInt(temp);
-			
+
 			labels[check] = new JLabel(text);
 			labels[check].setHorizontalAlignment(SwingConstants.CENTER);
 			labels[check].setFont(new Font("Ravie", Font.ITALIC, temp1));
-			
-			for(int i = 0; i <= check; i++)
+
+			for (int i = 0; i <= check; i++)
 				panel.add(labels[i], BorderLayout.CENTER);
-			
-			if(check == 4)
+
+			if (check == 4)
 				check = 0;
 			else
 				check++;
-			
+
 			panel.setSize(500, 300);
 			setSize(500, 300);
-			c.add(panel);    //나머지 부분은 똑같습니다.		
+			c.add(panel); // 나머지 부분은 똑같습니다.
 			break;
 		case "MaskImage":
-			BufferedImage image;
-			int width, height;
-
 			try {
 				String path = fileChooser("jpg", "png");
 
@@ -186,13 +186,21 @@ class MyFrame extends JFrame implements ActionListener {
 
 				int[] mask = new int[3];
 				if (text.equals("normal")) {
-					mask[0] = 255; mask[1] = 255; mask[2] = 255;
+					mask[0] = 255;
+					mask[1] = 255;
+					mask[2] = 255;
 				} else if (text.equals("red")) {
-					mask[0] = 255; mask[1] = 0; mask[2] = 0;
+					mask[0] = 255;
+					mask[1] = 0;
+					mask[2] = 0;
 				} else if (text.equals("green")) {
-					mask[0] = 0; mask[1] = 255; mask[2] = 0;
+					mask[0] = 0;
+					mask[1] = 255;
+					mask[2] = 0;
 				} else if (text.equals("blue")) {
-					mask[0] = 0; mask[1] = 0; mask[2] = 255;
+					mask[0] = 0;
+					mask[1] = 0;
+					mask[2] = 255;
 				}
 
 				if (text.equals("reverse")) {
@@ -228,8 +236,51 @@ class MyFrame extends JFrame implements ActionListener {
 				ex.printStackTrace();
 			}
 			break;
-		case "기능11": // 구현부탁 드려요
+		case "ReverseImage":
+			try {
+				String path = fileChooser("jpg", "png");
+				BufferedImage image1;
+				if (path == null)
+					break;
 
+				File file = new File(path);
+
+				image = ImageIO.read(file);
+				image1 = ImageIO.read(file);
+				width = image.getWidth();
+				height = image.getHeight();
+
+				do {
+					dialog = new MyDialog(this, "반전시킬 방향을 입력하세요(x, y)", "OK");
+					text = dialog.getField();
+				} while (!(text.equals("x") || text.equals("y")));
+
+				if (text.equals("x")) {
+					for (int r = 0; r < height; r++) {
+						for (int c = 0; c < width; c++) {
+							Color color = new Color(image.getRGB(c, r));
+							Color newColor = new Color(color.getRed(), color.getGreen(), color.getBlue());
+							image1.setRGB(width - 1 - c, r, newColor.getRGB());
+						}
+					}
+				} else {
+					for (int r = 0; r < height; r++) {
+						for (int c = 0; c < width; c++) {
+							Color color = new Color(image.getRGB(c, r));
+							Color newColor = new Color(color.getRed(), color.getGreen(), color.getBlue());
+							image1.setRGB(c, height - 1 - r, newColor.getRGB());
+						}
+					}
+				}
+
+				label = new JLabel();
+				label.setIcon(new ImageIcon(image1));
+				panel.add(label);
+				c.add(panel);
+				pack();
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
 			break;
 		case "PlayAudio":
 			String path = fileChooser("wav", "wav");
@@ -240,7 +291,6 @@ class MyFrame extends JFrame implements ActionListener {
 			loadAudio(path);
 			musicButton = new JButton[3];
 			JPanel panel1 = new JPanel(), panel2 = new JPanel();
-			
 
 			musicButton[0] = new JButton("play");
 			musicButton[0].addActionListener(new MyActionListener());
@@ -253,6 +303,48 @@ class MyFrame extends JFrame implements ActionListener {
 			panel1.add(musicButton[0]);
 			panel1.add(musicButton[1]);
 			panel1.add(musicButton[2]);
+			label = new JLabel("AUDIO STOP~");
+			label.setFont(new Font("Ravie", Font.ITALIC, 50));
+
+			panel2.add(label);
+			panel.setSize(500, 300);
+
+			panel.add(panel1);
+			panel.add(panel2);
+
+			setSize(500, 300);
+			c.add(panel);
+			timer = new Timer(500, new ActionListener() {
+				public void actionPerformed(ActionEvent arg0) {
+					Color myColor = new Color((int) (Math.random() * 256), (int) (Math.random() * 256),
+							(int) (Math.random() * 256));
+					panel.setBackground(myColor);
+					panel1.setBackground(myColor);
+					panel2.setBackground(myColor);
+					label.setBackground(myColor);
+					label.setForeground(new Color((int) (Math.random() * 256), (int) (Math.random() * 256),
+							(int) (Math.random() * 256)));
+				}
+			});
+			break;
+		case "LoopAudio": // 구현부탁 드려요~
+			path = fileChooser("wav", "wav");
+
+			if (path == null)
+				break;
+
+			loadAudio(path);
+			musicButton = new JButton[2];
+			panel1 = new JPanel(); panel2 = new JPanel();
+			
+			musicButton[0] = new JButton("stop");
+			musicButton[0].addActionListener(new MyActionListener());
+			musicButton[1] = new JButton("loop");
+			musicButton[1].addActionListener(new MyActionListener());
+			panel.setLayout(new GridLayout(0, 1));
+
+			panel1.add(musicButton[0]);
+			panel1.add(musicButton[1]);
 			label = new JLabel("AUDIO STOP~");
 			label.setFont(new Font("Ravie", Font.ITALIC, 50));
 			
@@ -274,9 +366,6 @@ class MyFrame extends JFrame implements ActionListener {
 					label.setForeground(new Color((int)(Math.random()*256), (int)(Math.random()*256), (int)(Math.random()*256)));
 				}
 			});
-			break;
-		case "기능21": // 구현부탁 드려요~
-
 			break;
 		default:
 			System.out.println("실행되면 안됨");
@@ -334,6 +423,13 @@ class MyFrame extends JFrame implements ActionListener {
 			case "play again":
 				clip.setFramePosition(0);
 				label.setText("AUDIO START~");
+				timer.start();
+				clip.start();
+				break;
+			case "loop":
+				clip.setFramePosition(0);
+				label.setText("AUDIO START~");
+				clip.loop(Clip.LOOP_CONTINUOUSLY);
 				timer.start();
 				clip.start();
 				break;
