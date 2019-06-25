@@ -1,11 +1,11 @@
-import java.awt.*;
+﻿import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 
 class MyFrame extends JFrame {
 	Graphics g;
 	JPanel panel;
-
+	//tests
 	public MyFrame() {
 		panel = new JPanel();
 		panel.setBackground(Color.GRAY);
