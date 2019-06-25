@@ -1,10 +1,10 @@
-import java.awt.*;
+﻿import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 
 class MyFrame extends JFrame{
 	JPanel panel;	//frame에 붙힐 panel 선언
-
+	//test
 	//인자 없는 생성자
 	public MyFrame() {
 		panel = new JPanel();	//panel 생성
